@@ -6,32 +6,6 @@ import Toast from '../utility/toast';
 
 const Dashboard: React.FC = () => {
   const [dashBoarddata, setDashBoardData] = useState<DashboardResponse | null>(null)
-  const stats = [
-    {
-      title: 'Total Users',
-      value: '1,234',
-      icon: Users,
-      color: 'bg-blue-500'
-    },
-    {
-      title: 'Employees',
-      value: '89',
-      icon: UserPlus,
-      color: 'bg-green-500'
-    },
-    {
-      title: 'Services',
-      value: '45',
-      icon: Briefcase,
-      color: 'bg-purple-500'
-    },
-    {
-      title: 'Services request',
-      value: '45',
-      icon: NotebookText,
-      color: 'bg-yellow-400'
-    }
-  ];
 
   useEffect(() => {
     fetchDashboardData()
@@ -70,7 +44,7 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-      
+
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -109,11 +83,11 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-        <div>
+      <div>
 
-          <button className='m-5 bg-green-500 p-2 text-white rounded' onClick={() => { Toast.success("success") }}>Success</button>
-          <button className='m-5 bg-red-500 p-2 text-white rounded' onClick={() => { Toast.error("error is occured") }}>Error</button>
-        </div>
+        <button className='m-5 bg-green-500 p-2 text-white rounded' onClick={() => { Toast.success("success") }}>Success</button>
+        <button className='m-5 bg-red-500 p-2 text-white rounded' onClick={() => { Toast.error("error is occured") }}>Error</button>
+      </div>
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

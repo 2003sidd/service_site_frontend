@@ -13,7 +13,7 @@ const Users: React.FC = () => {
   // const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<User>({
     _id: '',
     name: '',
     email: '',
@@ -190,7 +190,7 @@ const Users: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-                    {new Date(user?.createdAt).toLocaleDateString()}
+                    {new Date(user?.createdAt!!).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 text-center whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-center space-x-2">
@@ -218,6 +218,10 @@ const Users: React.FC = () => {
         </div>
       </div>
 
+      {Array.isArray(users) && users.length == 0 && <div>
+        <DataNotFound />
+      </div>
+      }
       {/* User Modal */}
       <Modal
         isOpen={isModalOpen}

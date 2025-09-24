@@ -5,6 +5,7 @@ import Button from '../components/UI/Button';
 import Input from '../components/UI/Input';
 import Modal from '../components/UI/Modal';
 import { deleteEmployee, getEmployee, upsertEmployee } from '../services/employee.service';
+import DataNotFound from './NoDataFound';
 
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -242,6 +243,10 @@ const Employees: React.FC = () => {
         </div>
       </div>
 
+      {Array.isArray(employees) && employees.length == 0 && <div>
+        <DataNotFound />
+      </div>
+      }
       {/* Employee Modal */}
       <Modal
         isOpen={isModalOpen}

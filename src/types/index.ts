@@ -5,7 +5,7 @@ export interface User {
   isActive: boolean;
   password: string;
   number: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface Employee {
