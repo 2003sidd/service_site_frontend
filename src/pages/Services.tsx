@@ -12,7 +12,7 @@ const Services: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<ServiceRequest | null>(null);
   const [formData, setFormData] = useState<ServiceRequest>({
-    _id:'',
+    _id: '',
     name: '',
     description: '',
     services: [
@@ -45,29 +45,52 @@ const Services: React.FC = () => {
 
 
   const handleSerNameChange = (index: number, value: string) => {
-    const updatedPricing = [...formData.services];
-    updatedPricing[index].name = value;
+    const updatedPricing = formData.services.map((service, i) =>
+      i === index ? { ...service, name: value } : { ...service }
+    );
 
     setFormData(prev => ({
       ...prev,
       services: updatedPricing
     }));
   };
+
 
   const handleSerPriceChange = (index: number, value: string) => {
-    const updatedPricing = [...formData.services];
-    updatedPricing[index].price = value;
+    const trimmedValue = value.trim();
+    const parsed = parseFloat(trimmedValue);
+
+    const isValid = trimmedValue !== '' && !isNaN(parsed) && isFinite(parsed);
+
+    const updatedPricing = formData.services.map((service, i) => {
+      if (i === index) {
+        return {
+          ...service,
+          price: isValid ? value : ''
+        };
+      }
+      return { ...service };
+    });
+
+    if (!isValid) {
+      console.log('Invalid price input');
+    }
 
     setFormData(prev => ({
       ...prev,
       services: updatedPricing
     }));
   };
+
+
   const fetchServices = async () => {
     try {
       const data = await getService();
-      setServices(data.data)
-      // setServices(data);
+      if(data.data){
+        setServices(data.data)
+
+      }
+
     } catch (error) {
       console.error('Error fetching services:', error);
     } finally {
@@ -99,10 +122,10 @@ const Services: React.FC = () => {
       try {
         // await serviceAPI.deleteService(id);
         const data = await toggleServiceview(id);
-        if(data.data){
+        if (data.data) {
           fetchServices();
-        }else{
-          
+        } else {
+
         }
         fetchServices();
       } catch (error) {
@@ -115,7 +138,7 @@ const Services: React.FC = () => {
     if (service) {
       setEditingService(service);
       setFormData({
-        _id:service._id,
+        _id: service._id,
         name: service.name,
         description: service.description,
         services: service.services,
@@ -175,7 +198,7 @@ const Services: React.FC = () => {
       </div> */}
       <hr className="text-gray-300 my-4" />
       {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mx-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mx-2">
         {Array.isArray(services) && services.map((service) => (
           <div key={service._id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
             <div className="p-6">
@@ -195,8 +218,8 @@ const Services: React.FC = () => {
                   <button
                     onClick={() => handleDelete(service._id!!)}
                     className="text-red-600 hover:text-red-900 p-1">
-                      {service.isActive?<Eye />:<EyeOff />}
-                    
+                    {service.isActive ? <Eye /> : <EyeOff />}
+
                   </button>
                 </div>
               </div>
@@ -204,9 +227,9 @@ const Services: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div>
 
-                  {service.services.length > 0 && service.services.map((data, index) => (
+                  {Array.isArray(services) && service.services.length > 0 && service.services.map((data, index) => (
                     <div key={index} className='flex justify-between font-semibold'>
-                      {data.name}    <span className='mx-2 font-normal'> - &#8377; {data.price}</span>
+                      {data.name}    <span className='mx-2 grow font-normal'> - &#8377; {data.price}</span>
                     </div>
                   ))
 
@@ -225,7 +248,7 @@ const Services: React.FC = () => {
         ))}
       </div>
 
-      {services.length === 0 && (
+          {Array.isArray(services) && services.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500">No services found matching your search.</p>
         </div>
@@ -268,7 +291,7 @@ const Services: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
                 <Input
-                  label="Category"
+                  label="Name"
                   type="text"
                   required
                   className='bg-white'

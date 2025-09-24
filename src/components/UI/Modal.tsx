@@ -44,7 +44,7 @@ const Modal: React.FC<ModalProps> = ({
               {title}
             </h3>
             <button
-              className="p-1 rounded-md bg-red-500 hover:bg-gray-300"
+              className="p-1 rounded-md bg-gray-200 hover:bg-gray-300"
             >
               <X size={20}
                 onClick={onClose}

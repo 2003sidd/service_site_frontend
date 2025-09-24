@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Users, UserPlus, Briefcase, NotebookText } from 'lucide-react';
+import { getDashBoardData } from '../services/user.service';
+import type { DashboardResponse } from '../types/responseTypes/dashbiardResponse.';
+import Toast from '../utility/toast';
 
 const Dashboard: React.FC = () => {
+  const [dashBoarddata, setDashBoardData] = useState<DashboardResponse | null>(null)
   const stats = [
     {
       title: 'Total Users',
@@ -29,6 +33,21 @@ const Dashboard: React.FC = () => {
     }
   ];
 
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      const data = await getDashBoardData();
+      if (data.data) {
+        setDashBoardData(data.data)
+      }
+    } catch (error) {
+
+    }
+  }
+
   return (
     <div className="space-y-6 p-4">
       <section>
@@ -38,21 +57,63 @@ const Dashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-              
-              </div>
-              <div className={`p-3 rounded-full ${stat.color}`}>
-                <stat.icon className="h-6 w-6 text-white" />
-              </div>
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Users</p>
+              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.userCount ? dashBoarddata?.userCount : "N/A"}</p>
+
+            </div>
+            <div className={`p-3 rounded-full bg-blue-500`}>
+              <Users className="h-6 w-6 text-white" />
             </div>
           </div>
-        ))}
+        </div>
+
+      
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Employees</p>
+              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.employeeCount ? dashBoarddata?.employeeCount : "N/A"}</p>
+
+            </div>
+            <div className={`p-3 rounded-full bg-green-500`}>
+              <UserPlus className="h-6 w-6 text-white" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Services</p>
+              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.serviceCount ? dashBoarddata?.serviceCount : "N/A"}</p>
+
+            </div>
+            <div className={`p-3 rounded-full bg-purple-500`}>
+              <Briefcase className="h-6 w-6 text-white" />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Services request</p>
+              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.serviceRequestCount ? dashBoarddata?.serviceRequestCount : "N/A"}</p>
+
+            </div>
+            <div className={`p-3 rounded-full bg-yellow-500`}>
+              <NotebookText className="h-6 w-6 text-white" />
+            </div>
+          </div>
+        </div>
       </div>
+
+        <div>
+
+          <button className='m-5 bg-green-500 p-2 text-white rounded' onClick={() => { Toast.success("success") }}>Success</button>
+          <button className='m-5 bg-red-500 p-2 text-white rounded' onClick={() => { Toast.error("error is occured") }}>Error</button>
+        </div>
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -62,16 +123,15 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium">U{item}</span>
+              {Array.isArray(dashBoarddata?.user) && dashBoarddata.user.length > 0 && dashBoarddata?.user.map((item, key) => (
+                <div key={key} className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-green-400 text-white uppercase rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium">{item.name[key]}</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">User {item}</p>
-                    <p className="text-xs text-gray-500">user{item}@example.com</p>
+                    <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                    <p className="text-xs text-gray-500">{item.email}</p>
                   </div>
-                  <span className="text-xs text-gray-400">2h ago</span>
                 </div>
               ))}
             </div>

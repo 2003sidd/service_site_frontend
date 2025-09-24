@@ -65,7 +65,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           <div className="p-6 border-b ">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-medium bg-green-500 py-3 px-5 mr-2 rounded-4xl">
+                <span className="text-white font-medium bg-green-500 py-3 uppercase px-5 mr-2 rounded-4xl">
                   {user?.name?.charAt(0) || 'A'}
                 </span>
               </div>

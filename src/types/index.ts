@@ -13,6 +13,7 @@ export interface Employee {
   name: string;
   email: string;
   password: '';
+  address: string
   isActive: boolean;
   number: string
   role: string

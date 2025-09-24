@@ -4,6 +4,7 @@ import type { paginationType } from "../types/pagniation.interface";
 import type { loginRequest } from "../types/requestTypes/loginRequest.interface";
 import type { registerUserInterface } from "../types/requestTypes/registerUser.interface";
 import type { ServiceRequest } from "../types/requestTypes/serviceRequest.interface";
+import type { DashboardResponse } from "../types/responseTypes/dashbiardResponse.";
 import type { EmployeeLoginResponse } from "../types/responseTypes/employeeLoginResponse";
 import type { paginationUserResponse } from "../types/responseTypes/paginationResponse";
 import { get, post } from "./api";
@@ -43,5 +44,7 @@ export const deleteUser = async (id: string) => {
     return get<genericResponse<boolean>>(`api/user/toggleCustomerStatus/${id}`);
 }
 
-
+export const getDashBoardData = async () => {
+    return get<genericResponse<DashboardResponse>>('api/dashboard/dashboardRoute')
+}
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
 import type { Employee } from '../types';
 import Button from '../components/UI/Button';
 import Input from '../components/UI/Input';
@@ -18,6 +18,7 @@ const Employees: React.FC = () => {
     name: string;
     email: string;
     number: string;
+    address: string;
     isActive: boolean;
     password: string;
     role: string;
@@ -26,6 +27,7 @@ const Employees: React.FC = () => {
     name: '',
     email: '',
     number: '',
+    address: '',
     isActive: true,
     password: '',
     role: ''
@@ -99,6 +101,7 @@ const Employees: React.FC = () => {
         email: employee.email,
         number: employee.number,
         isActive: employee.isActive,
+        address: employee.address,
         role: employee.role,
         password: '',
         _id: employee._id,
@@ -112,6 +115,7 @@ const Employees: React.FC = () => {
         name: '',
         email: '',
         number: '',
+        address: '',
         password: '',
         isActive: true,
         role: "Admin"
@@ -178,6 +182,9 @@ const Employees: React.FC = () => {
                   Email
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Address
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Role
                 </th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -203,6 +210,11 @@ const Employees: React.FC = () => {
                       {employee.email}
                     </span>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="flex justify-center items-center px-2.5 py-0.5 rounded-full text-xs font-medium ">
+                      {employee?.address}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {employee.role}
                   </td>
@@ -219,7 +231,7 @@ const Employees: React.FC = () => {
                         onClick={() => handleDelete(employee._id!!)}
                         className="text-red-600 hover:text-red-900 p-1"
                       >
-                        <Trash2 size={16} />
+                        {employee.isActive ? <Eye /> : <EyeOff />}
                       </button>
                     </div>
                   </td>
@@ -271,6 +283,20 @@ const Employees: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
 
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description
+            </label>
+            <textarea
+              required
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="Enter service description..."
+            />
           </div>
 
           <div>
