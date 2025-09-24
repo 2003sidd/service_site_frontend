@@ -6,12 +6,14 @@ import Input from '../components/UI/Input';
 import Modal from '../components/UI/Modal';
 import { deleteEmployee, getEmployee, upsertEmployee } from '../services/employee.service';
 import DataNotFound from './NoDataFound';
+import Toast from '../utility/toast';
 
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
   // const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
   const [formData, setFormData] = useState<{
@@ -68,6 +70,7 @@ const Employees: React.FC = () => {
       if (data.data) {
         fetchEmployees();
         closeModal();
+        Toast.success("Employee added successfully!"); 
       } else {
 
       }
@@ -260,6 +263,7 @@ const Employees: React.FC = () => {
               label="Name"
               type="text"
               required
+              placeholder="Enter your name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
@@ -268,6 +272,7 @@ const Employees: React.FC = () => {
               label="Email"
               type="email"
               required
+              placeholder="Enter your email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
@@ -276,23 +281,32 @@ const Employees: React.FC = () => {
               label="Number"
               type="text"
               required
+              placeholder="Enter your number"
               value={formData.number}
               onChange={(e) => setFormData({ ...formData, number: e.target.value })}
             />
 
+              <div className='relative'>
             <Input
               label="Password"
-              type="text"
-              required
+            type={showPassword ? 'text' : 'password'}
+            required
+            placeholder="Enter your password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
-
+            <button
+                    type="button"
+                    className="absolute right-3 top-9 h-4 w-4 text-gray-400 hover:text-gray-600"
+                    onClick={() => setShowPassword(!showPassword)} >
+                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+           </button>
+          </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
+              Address
             </label>
             <textarea
               required
@@ -300,7 +314,7 @@ const Employees: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Enter service description..."
+              placeholder="Enter service Address..."
             />
           </div>
 

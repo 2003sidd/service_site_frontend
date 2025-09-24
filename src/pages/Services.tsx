@@ -5,6 +5,7 @@ import Input from '../components/UI/Input';
 import Modal from '../components/UI/Modal';
 import { getService, serviceCreation, toggleServiceview } from '../services/user.service';
 import type { ServiceRequest } from '../types/requestTypes/serviceRequest.interface';
+import Toast from '../utility/toast';
 
 const Services: React.FC = () => {
   const [services, setServices] = useState<ServiceRequest[]>([]);
@@ -111,6 +112,7 @@ const Services: React.FC = () => {
       if (data.data) {
         fetchServices();
         closeModal();
+        Toast.success("Service added successfully!"); 
       }
     } catch (error) {
       console.error('Error saving service:', error);
@@ -317,7 +319,7 @@ const Services: React.FC = () => {
               </div>
             ))}
             <div className='text-end' >
-              <span className='bg-yellow-300 py-1 px-4 rounded-lg mt-2 font-semibold' onClick={addService}>Add</span>
+              <span className='bg-yellow-300 py-1 px-4 rounded-lg mt-2 font-semibold cursor-pointer' onClick={addService}>Add</span>
 
             </div>
 
@@ -330,7 +332,7 @@ const Services: React.FC = () => {
             <select
               value={formData.isActive ? "true" : "false"}  // Display true/false as strings for select
               onChange={(e) => setFormData({ ...formData, isActive: e.target.value === "true" })} // Convert string to boolean
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
             >
               <option value="true">Active</option>
               <option value="false">Inactive</option>
