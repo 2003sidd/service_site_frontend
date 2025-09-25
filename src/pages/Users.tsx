@@ -15,10 +15,10 @@ const Users: React.FC = () => {
   const [loading, setLoading] = useState(false);
   // const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
-  
+
   const [formData, setFormData] = useState<User>({
     _id: '',
     name: '',
@@ -27,12 +27,12 @@ const Users: React.FC = () => {
     password: '',
     isActive: false
   });
-const [errors, setErrors] =   useState<{
-  name?: string;
-  email?: string;
-  password?: string;
-  number?: string;
-}>({});
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    password?: string;
+    number?: string;
+  }>({});
 
   useEffect(() => {
     fetchUsers();
@@ -51,50 +51,59 @@ const [errors, setErrors] =   useState<{
       setLoading(false);
     }
   };
- //form validation
+  //form validation
   const validationSchema = Yup.object({
-    name : Yup.string().required("User Name is Required"),
-    email : Yup.string()
-    .required("User Email is Required")
-    .email("Invalid Email Format"),
-    number : Yup.string()
-    .matches(/^\d{10}$/,"Number must be 10 digits")
-    .required("User Number is Required"),
-    password : Yup.string()
-    .required("User Password is Required")
-    .min(8,"Password must be at least 8 charaters")
-    .matches(
-      /[!@#$%^&*(),.?":{}|<>]/,
-      "Password must contain at least one symbol"
-    )
-    .matches(/[0-9]/,"Password must be contain at least one number")
-    .matches(/[a-z]/,"Password must be contain at least one lowercase letter")
-    .matches(/[A-Z]/,"Password must be contain at least one uppercase letter")
+    name: Yup.string().required("User Name is Required"),
+    email: Yup.string()
+      .required("User Email is Required")
+      .email("Invalid Email Format"),
+    number: Yup.string()
+      .matches(/^\d{10}$/, "Number must be 10 digits")
+      .required("User Number is Required"),
+    password: Yup.string()
+      .required("User Password is Required")
+      .min(8, "Password must be at least 8 charaters")
+      .matches(
+        /[!@#$%^&*(),.?":{}|<>]/,
+        "Password must contain at least one symbol"
+      )
+      .matches(/[0-9]/, "Password must be contain at least one number")
+      .matches(/[a-z]/, "Password must be contain at least one lowercase letter")
+      .matches(/[A-Z]/, "Password must be contain at least one uppercase letter")
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await validationSchema.validate(formData,{abortEarly:false})
+      await validationSchema.validate(formData, { abortEarly: false })
       console.log("user is")
       const data = await upsertUser(formData);
       console.log("created user is", data)
       if (data) {
         fetchUsers()
         closeModal();
-        Toast.success("User added successfully!"); 
+        Toast.success("User added successfully!");
       } else {
-        
+
       }
-    } catch (error) {
+    } catch (err) {
       // const newErrors = {}
       // error.inner.forEach((err)=>{
       //   newErrors[err.path] = err.message;
       // })
       // setErrors(newErrors)
-      console.log("validation error",error)
-       Toast.error("Failed to add user!");
-      console.error('Error saving user:', error);
+      console.log("validation error", err)
+      Toast.error("Failed to add user!");
+      // console.error('Error saving user:', error);
+      if (err instanceof Yup.ValidationError) {
+        const newErrors: { [key: string]: string } = {};
+        err.inner.forEach((error) => {
+          if (error.path) {
+            newErrors[error.path] = error.message;
+          }
+        });
+        setErrors(newErrors);
+      }
     }
   };
 
@@ -273,7 +282,7 @@ const [errors, setErrors] =   useState<{
           <Input
             label="Name"
             type="text"
-            required
+
             placeholder="Enter your name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -283,42 +292,39 @@ const [errors, setErrors] =   useState<{
           <Input
             label="Email"
             type="email"
-            required
             placeholder="Enter your email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           />
-           {errors.email && <div className='error text-red-700'>{errors.name}</div>}
+          {errors.email && <div className='error text-red-700'>{errors.name}</div>}
 
           <Input
             label="Number"
             type="text"
-            required
             placeholder="Enter your number"
             value={formData.number}
             onChange={(e) => setFormData({ ...formData, number: e.target.value })}
           />
-           {errors.number && <div className='error text-black'>{errors.number}</div>}
+          {errors.number && <div className='error text-black'>{errors.number}</div>}
 
           <div className='relative'>
-          <Input
-            name="Password"
-            label="Password"
-            type={showPassword ? 'text' : 'password'}
-            required
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          />
-          {errors.password && <div className='error'>{errors.password}</div>}
-          <button
-                  type="button"
-                  className="absolute right-3 top-9 h-4 w-4 text-gray-400 hover:text-gray-600"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
+            <Input
+              name="Password"
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            />
+            {errors.password && <div className='error'>{errors.password}</div>}
+            <button
+              type="button"
+              className="absolute right-3 top-9 h-4 w-4 text-gray-400 hover:text-gray-600"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
 
           {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
