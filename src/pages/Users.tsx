@@ -53,23 +53,18 @@ const Users: React.FC = () => {
   };
   //form validation
   const validationSchema = Yup.object({
-    name: Yup.string().required("User Name is Required"),
+    name: Yup.string().required("user name is required"),
     email: Yup.string()
-      .required("User Email is Required")
-      .email("Invalid Email Format"),
+      .required("user email is required")
+      .email("invalid email format"),
     number: Yup.string()
-      .matches(/^\d{10}$/, "Number must be 10 digits")
-      .required("User Number is Required"),
+      .matches(/^\d{10}$/, "number must be 10 digits")
+      .required("user number is required"),
     password: Yup.string()
-      .required("User Password is Required")
-      .min(8, "Password must be at least 8 charaters")
-      .matches(
-        /[!@#$%^&*(),.?":{}|<>]/,
-        "Password must contain at least one symbol"
-      )
-      .matches(/[0-9]/, "Password must be contain at least one number")
-      .matches(/[a-z]/, "Password must be contain at least one lowercase letter")
-      .matches(/[A-Z]/, "Password must be contain at least one uppercase letter")
+      .required("user password is required")
+      .min(8, "password must be at least 8 charaters")
+      .matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/,
+        "Password must contain at least one number,lowercase,uppercase or symbol")
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,7 +77,11 @@ const Users: React.FC = () => {
       if (data) {
         fetchUsers()
         closeModal();
-        Toast.success("User added successfully!");
+        if (editingUser) {
+        Toast.success("User Updated Successfully!");
+      } else {
+        Toast.success("User Added Successfully!");
+      }
       } else {
 
       }
@@ -93,8 +92,11 @@ const Users: React.FC = () => {
       // })
       // setErrors(newErrors)
       console.log("validation error", err)
-      Toast.error("Failed to add user!");
-      // console.error('Error saving user:', error);
+   if (editingUser) {
+      Toast.error("Failed to Update User!");
+    } else {
+      Toast.error("Failed to Add User!");
+    }      // console.error('Error saving user:', error);
       if (err instanceof Yup.ValidationError) {
         const newErrors: { [key: string]: string } = {};
         err.inner.forEach((error) => {
@@ -114,12 +116,15 @@ const Users: React.FC = () => {
         const data = await deleteUser(id);
         if (data.data) {
           fetchUsers()
+          Toast.success("User Deleted Successfully!");
         } else {
           // show error
         }
         fetchUsers();
       } catch (error) {
         console.error('Error deleting user:', error);
+        Toast.error("Failed to Delete User!")
+        
       }
     }
   };
@@ -154,6 +159,7 @@ const Users: React.FC = () => {
     console.log("working")
     setIsModalOpen(false);
     setEditingUser(null);
+    setErrors({});
   };
 
   // const filteredUsers = users.filter(user =>
@@ -282,12 +288,11 @@ const Users: React.FC = () => {
           <Input
             label="Name"
             type="text"
-
             placeholder="Enter your name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
-          {errors.name && <div className='error'>{errors.name}</div>}
+          {errors.name && <div className='text-red-700 text-xs font-medium ps-2'>{errors.name}</div>}
 
           <Input
             label="Email"
@@ -296,7 +301,10 @@ const Users: React.FC = () => {
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           />
-          {errors.email && <div className='error text-red-700'>{errors.name}</div>}
+          {errors.email && <div className='text-red-700 text-xs font-medium ps-2'>{errors.email
+            
+            
+            }</div>}
 
           <Input
             label="Number"
@@ -305,7 +313,7 @@ const Users: React.FC = () => {
             value={formData.number}
             onChange={(e) => setFormData({ ...formData, number: e.target.value })}
           />
-          {errors.number && <div className='error text-black'>{errors.number}</div>}
+          {errors.number && <div className='text-red-700 text-xs font-medium ps-2'>{errors.number}</div>}
 
           <div className='relative'>
             <Input
@@ -316,7 +324,7 @@ const Users: React.FC = () => {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
-            {errors.password && <div className='error'>{errors.password}</div>}
+            {errors.password && <div className='text-red-700 text-xs font-medium pt-4 ps-2'>{errors.password}</div>}
             <button
               type="button"
               className="absolute right-3 top-9 h-4 w-4 text-gray-400 hover:text-gray-600"

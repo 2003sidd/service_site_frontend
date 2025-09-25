@@ -7,6 +7,7 @@ import Modal from '../components/UI/Modal';
 import { deleteEmployee, getEmployee, upsertEmployee } from '../services/employee.service';
 import DataNotFound from './NoDataFound';
 import Toast from '../utility/toast';
+import * as Yup from 'Yup'
 
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -38,7 +39,13 @@ const Employees: React.FC = () => {
   useEffect(() => {
     fetchEmployees();
   }, []);
-
+  const [errors, setErrors] = useState<{
+      name?: string;
+      email?: string;
+      password?: string;
+      number?: string;
+      address?: string;
+    }>({});
   const fetchEmployees = async () => {
     try {
       // const data = await employeeAPI.getEmployees();
@@ -57,10 +64,28 @@ const Employees: React.FC = () => {
       setLoading(false);
     }
   };
+  //form validation
+    const validationSchema = Yup.object({
+      name: Yup.string().required("employee name is required"),
+      email: Yup.string()
+        .required("employee email is required")
+        .email("invalid email format"),
+      number: Yup.string()
+        .matches(/^\d{10}$/, "number must be 10 digits")
+        .required("employee number is required"),
+      password: Yup.string()
+        .required("employee password is required")
+        .min(8, "password must be at least 8 charaters")
+        .matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/,
+          "Password must contain at least one number,lowercase,uppercase or symbol"),
+      address: Yup.string()
+      .required("employee address is required")
+    })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+       await validationSchema.validate(formData, { abortEarly: false })
       // if (editingEmployee) {
       //   await employeeAPI.updateEmployee(editingEmployee.id, formData);
       // } else {
@@ -70,12 +95,30 @@ const Employees: React.FC = () => {
       if (data.data) {
         fetchEmployees();
         closeModal();
-        Toast.success("Employee added successfully!"); 
+        if(editingEmployee){
+           Toast.success("Employee Updated Successfully!");
+        }else{
+           Toast.success("Employee Added Successfully!");
+        }
       } else {
 
       }
-    } catch (error) {
-      console.error('Error saving employee:', error);
+    } catch (err) {
+      console.error('Error saving employee:', err);
+      closeModal();
+        if(editingEmployee){
+          Toast.error("Failed to Update Employee!");
+          }else{
+           Toast.error("Failed to Add Employee!");
+        }        if (err instanceof Yup.ValidationError) {
+              const newErrors: { [key: string]: string } = {};
+              err.inner.forEach((error) => {
+                if (error.path) {
+                  newErrors[error.path] = error.message;
+                }
+              });
+              setErrors(newErrors);
+            }
     }
   };
 
@@ -91,8 +134,10 @@ const Employees: React.FC = () => {
 
         }
         fetchEmployees();
+          Toast.success("Employee Deleted Successfully!");
       } catch (error) {
         console.error('Error deleting employee:', error);
+        Toast.error("Failed to Delete Employee!");
       }
     }
   };
@@ -131,6 +176,7 @@ const Employees: React.FC = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingEmployee(null);
+    setErrors({});
   };
 
 
@@ -259,42 +305,49 @@ const Employees: React.FC = () => {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
             <Input
               label="Name"
               type="text"
-              required
               placeholder="Enter your name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
-
+            {/* {errors.name && <div className='text-red-700 text-xs font-medium ps-2'>{errors.name}</div>} */}
+            {errors.name && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.name}</p>)}
+            </div>
+            <div>
             <Input
               label="Email"
               type="email"
-              required
               placeholder="Enter your email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
+            {errors.email && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.email}</p>)}
+            </div>
 
+             <div>
             <Input
               label="Number"
               type="text"
-              required
               placeholder="Enter your number"
               value={formData.number}
               onChange={(e) => setFormData({ ...formData, number: e.target.value })}
             />
+              {errors.number && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.number}</p>)}
+             </div>
 
               <div className='relative'>
             <Input
               label="Password"
             type={showPassword ? 'text' : 'password'}
-            required
             placeholder="Enter your password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
+           {errors.password && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.password}</p>)}
+
             <button
                     type="button"
                     className="absolute right-3 top-9 h-4 w-4 text-gray-400 hover:text-gray-600"
@@ -309,13 +362,13 @@ const Employees: React.FC = () => {
               Address
             </label>
             <textarea
-              required
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Enter service Address..."
             />
+            {errors.address && (<p className="text-red-700 text-xs font-medium ps-2 pt-1">{errors.address}</p>)}
           </div>
 
           <div>

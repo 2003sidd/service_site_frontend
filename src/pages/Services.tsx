@@ -6,6 +6,7 @@ import Modal from '../components/UI/Modal';
 import { getService, serviceCreation, toggleServiceview } from '../services/user.service';
 import type { ServiceRequest } from '../types/requestTypes/serviceRequest.interface';
 import Toast from '../utility/toast';
+import * as Yup from 'Yup'
 
 const Services: React.FC = () => {
   const [services, setServices] = useState<ServiceRequest[]>([]);
@@ -25,7 +26,12 @@ const Services: React.FC = () => {
   useEffect(() => {
     fetchServices();
   }, []);
-
+  const [errors, setErrors] = useState<{
+      name?: string;
+      description?: string;
+      price?:string
+      ServiceName?: string
+    }>({});
   const removeService = (index: number) => {
     setFormData(prev => ({
       ...prev,
@@ -98,10 +104,19 @@ const Services: React.FC = () => {
       setLoading(false);
     }
   };
-
+  const validationSchema = Yup.object({
+    ServiceName: Yup.string().required("service name is required"),
+      name: Yup.string().required("name is required"),
+      description: Yup.string()
+        .required("service description is required"),
+      price: Yup.string()
+      .matches(/^[0-9]+$/, "Price must be a number")
+      .required("price is required"),
+    })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+            await validationSchema.validate(formData, { abortEarly: false })
       // if (editingService) {
       //   await serviceAPI.updateService(editingService.id, formData);
       // } else {
@@ -112,10 +127,26 @@ const Services: React.FC = () => {
       if (data.data) {
         fetchServices();
         closeModal();
-        Toast.success("Service added successfully!"); 
+      if (editingService) {
+        Toast.success("Service Updated Successfully!");
+      } else {
+        Toast.success("Service Added Successfully!");
+      }      }
+    } catch (err) {
+      console.error('Error saving service:', err);
+if (editingService) {
+      Toast.error("Failed to Update Service!");
+    } else {
+      Toast.error("Failed to Add Service!");
+    }      if (err instanceof Yup.ValidationError) {
+      const newErrors: { [key: string]: string } = {};
+      err.inner.forEach((error) => {
+      if (error.path) {
+      newErrors[error.path] = error.message;
       }
-    } catch (error) {
-      console.error('Error saving service:', error);
+      });
+      setErrors(newErrors);
+      }
     }
   };
 
@@ -126,12 +157,16 @@ const Services: React.FC = () => {
         const data = await toggleServiceview(id);
         if (data.data) {
           fetchServices();
+                    Toast.success("Service Deleted Successfully!");
+
         } else {
 
         }
         fetchServices();
       } catch (error) {
         console.error('Error deleting service:', error);
+          Toast.error("Failed to Delete Service!")
+
       }
     }
   };
@@ -162,6 +197,7 @@ const Services: React.FC = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingService(null);
+    setErrors({})
   };
 
 
@@ -267,24 +303,25 @@ const Services: React.FC = () => {
           <Input
             label="Service Name"
             type="text"
-            required
             placeholder="Enter service name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
+          {errors.ServiceName && <div className='text-red-700 text-xs font-medium ps-2'>{errors.ServiceName}</div>}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Description
             </label>
             <textarea
-              required
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Enter service description..."
             />
+          {errors.description && <div className='text-red-700 text-xs font-medium ps-2 pt-3'>{errors.description}</div>}
+
           </div>
 
           <div className='bg-gray-100 p-4 rounded max-h-[400px] overflow-y-auto'>
@@ -292,29 +329,32 @@ const Services: React.FC = () => {
             {formData.services.map((p, index) => (
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
+                <div>
                 <Input
                   label="Name"
                   type="text"
-                  required
                   className='bg-white'
                   value={p.name}
                   placeholder=""
                   onChange={(e) => handleSerNameChange(index, e.target.value)}
                 />
-                <section className='flex items-end justify-center gap-4'>
+            {errors.name && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.name}</p>)}
+            </div>
 
+                <section className='flex items-end justify-center gap-4'>
+                  <div>
                   <Input
                     label="Price (&#8377;)"
                     type="text"
-                    required
                     className='bg-white'
                     value={p.price}
                     onChange={(e) => handleSerPriceChange(index, e.target.value)}
                   />
+            {errors.price && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.price}</p>)}
                   {index != 0 &&
                     <span onClick={() => { removeService(index) }} className='bg-red-400 p-2 text-white rounded-xl'>-</span>
-
                   }
+                  </div>
                 </section>
               </div>
             ))}
