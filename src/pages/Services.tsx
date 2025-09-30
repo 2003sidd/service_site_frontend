@@ -116,7 +116,7 @@ const Services: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-            await validationSchema.validate(formData, { abortEarly: false })
+            // await validationSchema.validate(formData, { abortEarly: false })
       // if (editingService) {
       //   await serviceAPI.updateService(editingService.id, formData);
       // } else {

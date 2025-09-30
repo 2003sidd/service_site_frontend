@@ -7,7 +7,10 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  ReceiptText,
+  BookLock,
+  BookOpenText
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -23,9 +26,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     { path: '/dashboard', icon: Settings, label: 'Dashboard' },
     { path: '/newRequest', icon: Settings, label: 'New Request' },
     { path: '/request', icon: Settings, label: 'Requests' },
+    { path: '/services', icon: Briefcase, label: 'Services' },
     { path: '/users', icon: Users, label: 'Users' },
     { path: '/employees', icon: UserPlus, label: 'Employees' },
-    { path: '/services', icon: Briefcase, label: 'Services' },
+    { path: '/aboutUs', icon: BookOpenText  , label: 'About Us' },
+    { path: '/termAndCond', icon: ReceiptText, label: 'Terms and Conditions' },
+    { path: '/privacyPolicy', icon: BookLock , label: 'Privacy Policy' },
+
   ];
 
   const handleLogout = () => {

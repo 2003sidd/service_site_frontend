@@ -40,12 +40,12 @@ const Employees: React.FC = () => {
     fetchEmployees();
   }, []);
   const [errors, setErrors] = useState<{
-      name?: string;
-      email?: string;
-      password?: string;
-      number?: string;
-      address?: string;
-    }>({});
+    name?: string;
+    email?: string;
+    password?: string;
+    number?: string;
+    address?: string;
+  }>({});
   const fetchEmployees = async () => {
     try {
       // const data = await employeeAPI.getEmployees();
@@ -65,27 +65,30 @@ const Employees: React.FC = () => {
     }
   };
   //form validation
-    const validationSchema = Yup.object({
-      name: Yup.string().required("employee name is required"),
-      email: Yup.string()
-        .required("employee email is required")
-        .email("invalid email format"),
-      number: Yup.string()
-        .matches(/^\d{10}$/, "number must be 10 digits")
-        .required("employee number is required"),
-      password: Yup.string()
-        .required("employee password is required")
-        .min(8, "password must be at least 8 charaters")
-        .matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/,
-          "Password must contain at least one number,lowercase,uppercase or symbol"),
-      address: Yup.string()
+  const validationSchema = Yup.object({
+    name: Yup.string().transform(value => value.trim()).required("employee name is required"),
+    email: Yup.string().transform(value => value.trim())
+      .required("employee email is required")
+      .email("invalid email format"),
+    number: Yup.string()
+      .transform(value => value.trim())
+      .matches(/^\d{10}$/, "number must be 10 digits")
+      .required("employee number is required"),
+    password: Yup.string()
+      .transform(value => value.trim())
+      .required("employee password is required")
+      .min(8, "password must be at least 8 charaters")
+      .matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/,
+        "Password must contain at least one number,lowercase,uppercase or symbol"),
+    address: Yup.string()
+      .transform(value => value.trim())
       .required("employee address is required")
-    })
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-       await validationSchema.validate(formData, { abortEarly: false })
+      await validationSchema.validate(formData, { abortEarly: false })
       // if (editingEmployee) {
       //   await employeeAPI.updateEmployee(editingEmployee.id, formData);
       // } else {
@@ -95,30 +98,29 @@ const Employees: React.FC = () => {
       if (data.data) {
         fetchEmployees();
         closeModal();
-        if(editingEmployee){
-           Toast.success("Employee Updated Successfully!");
-        }else{
-           Toast.success("Employee Added Successfully!");
+        if (editingEmployee) {
+          Toast.success("Employee Updated Successfully!");
+        } else {
+          Toast.success("Employee Added Successfully!");
         }
       } else {
 
       }
     } catch (err) {
       console.error('Error saving employee:', err);
-      closeModal();
-        if(editingEmployee){
-          Toast.error("Failed to Update Employee!");
-          }else{
-           Toast.error("Failed to Add Employee!");
-        }        if (err instanceof Yup.ValidationError) {
-              const newErrors: { [key: string]: string } = {};
-              err.inner.forEach((error) => {
-                if (error.path) {
-                  newErrors[error.path] = error.message;
-                }
-              });
-              setErrors(newErrors);
-            }
+      if (editingEmployee) {
+        Toast.error("Failed to Update Employee!");
+      } else {
+        Toast.error("Failed to Add Employee!");
+      } if (err instanceof Yup.ValidationError) {
+        const newErrors: { [key: string]: string } = {};
+        err.inner.forEach((error) => {
+          if (error.path) {
+            newErrors[error.path] = error.message;
+          }
+        });
+        setErrors(newErrors);
+      }
     }
   };
 
@@ -134,7 +136,7 @@ const Employees: React.FC = () => {
 
         }
         fetchEmployees();
-          Toast.success("Employee Deleted Successfully!");
+        Toast.success("Employee Deleted Successfully!");
       } catch (error) {
         console.error('Error deleting employee:', error);
         Toast.error("Failed to Delete Employee!");
@@ -306,55 +308,55 @@ const Employees: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-            <Input
-              label="Name"
-              type="text"
-              placeholder="Enter your name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            />
-            {/* {errors.name && <div className='text-red-700 text-xs font-medium ps-2'>{errors.name}</div>} */}
-            {errors.name && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.name}</p>)}
+              <Input
+                label="Name"
+                type="text"
+                placeholder="Enter your name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+              {/* {errors.name && <div className='text-red-700 text-xs font-medium ps-2'>{errors.name}</div>} */}
+              {errors.name && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.name}</p>)}
             </div>
             <div>
-            <Input
-              label="Email"
-              type="email"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
-            {errors.email && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.email}</p>)}
+              <Input
+                label="Email"
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+              {errors.email && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.email}</p>)}
             </div>
 
-             <div>
-            <Input
-              label="Number"
-              type="text"
-              placeholder="Enter your number"
-              value={formData.number}
-              onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-            />
+            <div>
+              <Input
+                label="Number"
+                type="text"
+                placeholder="Enter your number"
+                value={formData.number}
+                onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+              />
               {errors.number && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.number}</p>)}
-             </div>
+            </div>
 
-              <div className='relative'>
-            <Input
-              label="Password"
-            type={showPassword ? 'text' : 'password'}
-            placeholder="Enter your password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            />
-           {errors.password && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.password}</p>)}
+            <div className='relative'>
+              <Input
+                label="Password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
+              {errors.password && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.password}</p>)}
 
-            <button
-                    type="button"
-                    className="absolute right-3 top-9 h-4 w-4 text-gray-400 hover:text-gray-600"
-                    onClick={() => setShowPassword(!showPassword)} >
-                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-           </button>
-          </div>
+              <button
+                type="button"
+                className="absolute right-3 top-9 h-4 w-4 text-gray-400 hover:text-gray-600"
+                onClick={() => setShowPassword(!showPassword)} >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <div>

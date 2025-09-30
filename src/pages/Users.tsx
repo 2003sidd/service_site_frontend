@@ -53,14 +53,14 @@ const Users: React.FC = () => {
   };
   //form validation
   const validationSchema = Yup.object({
-    name: Yup.string().required("user name is required"),
-    email: Yup.string()
+    name: Yup.string().transform(value => value.trim()).required("user name is required"),
+    email: Yup.string().transform(value => value.trim())
       .required("user email is required")
       .email("invalid email format"),
-    number: Yup.string()
+    number: Yup.string().transform(value => value.trim())
       .matches(/^\d{10}$/, "number must be 10 digits")
       .required("user number is required"),
-    password: Yup.string()
+    password: Yup.string().transform(value => value.trim())
       .required("user password is required")
       .min(8, "password must be at least 8 charaters")
       .matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/,
