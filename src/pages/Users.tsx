@@ -9,6 +9,7 @@ import { deleteUser, getUsers, upsertUser } from '../services/user.service';
 import DataNotFound from './NoDataFound';
 import Toast from '../utility/toast';
 import * as Yup from 'Yup'
+import Loader from '../components/UI/Loader';
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -40,6 +41,7 @@ const Users: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
+      setLoading(true)
       const data = await getUsers({ index: 1, top: 10 });
       console.log("data from api is", data)
       if (data.data.total > 0) {
@@ -71,32 +73,21 @@ const Users: React.FC = () => {
     e.preventDefault();
     try {
       await validationSchema.validate(formData, { abortEarly: false })
-      console.log("user is")
       const data = await upsertUser(formData);
-      console.log("created user is", data)
-      if (data) {
+      if (data.data) {
         fetchUsers()
         closeModal();
         if (editingUser) {
-        Toast.success("User Updated Successfully!");
+          Toast.success("User Updated Successfully!");
+        } else {
+          Toast.success("User Added Successfully!");
+        }
       } else {
-        Toast.success("User Added Successfully!");
-      }
-      } else {
-
+        Toast.error(data.message)
       }
     } catch (err) {
-      // const newErrors = {}
-      // error.inner.forEach((err)=>{
-      //   newErrors[err.path] = err.message;
-      // })
-      // setErrors(newErrors)
-      console.log("validation error", err)
-   if (editingUser) {
-      Toast.error("Failed to Update User!");
-    } else {
-      Toast.error("Failed to Add User!");
-    }      // console.error('Error saving user:', error);
+
+
       if (err instanceof Yup.ValidationError) {
         const newErrors: { [key: string]: string } = {};
         err.inner.forEach((error) => {
@@ -105,6 +96,12 @@ const Users: React.FC = () => {
           }
         });
         setErrors(newErrors);
+      } else {
+        if (editingUser) {
+          Toast.error("Failed to Update User!");
+        } else {
+          Toast.error("Failed to Add User!");
+        }
       }
     }
   };
@@ -124,7 +121,7 @@ const Users: React.FC = () => {
       } catch (error) {
         console.error('Error deleting user:', error);
         Toast.error("Failed to Delete User!")
-        
+
       }
     }
   };
@@ -169,9 +166,7 @@ const Users: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      </div>
+      <Loader />
     );
   }
 
@@ -291,8 +286,9 @@ const Users: React.FC = () => {
             placeholder="Enter your name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            error={errors.name}
+
           />
-          {errors.name && <div className='text-red-700 text-xs font-medium ps-2'>{errors.name}</div>}
 
           <Input
             label="Email"
@@ -300,11 +296,8 @@ const Users: React.FC = () => {
             placeholder="Enter your email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            error={errors.email}
           />
-          {errors.email && <div className='text-red-700 text-xs font-medium ps-2'>{errors.email
-            
-            
-            }</div>}
 
           <Input
             label="Number"
@@ -312,8 +305,8 @@ const Users: React.FC = () => {
             placeholder="Enter your number"
             value={formData.number}
             onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+            error={errors.number}
           />
-          {errors.number && <div className='text-red-700 text-xs font-medium ps-2'>{errors.number}</div>}
 
           <div className='relative'>
             <Input
@@ -323,8 +316,8 @@ const Users: React.FC = () => {
               placeholder="Enter your password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              error={errors.password}
             />
-            {errors.password && <div className='text-red-700 text-xs font-medium pt-4 ps-2'>{errors.password}</div>}
             <button
               type="button"
               className="absolute right-3 top-9 h-4 w-4 text-gray-400 hover:text-gray-600"
@@ -334,33 +327,7 @@ const Users: React.FC = () => {
             </button>
           </div>
 
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Role
-            </label>
-            <select
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'user' })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div> */}
 
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-          </div> */}
 
           <div className="flex justify-center space-x-3 pt-4">
             <Button type="submit" className='bg-green-500 hover:bg-green-600'>

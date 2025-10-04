@@ -6,7 +6,8 @@ export interface ServiceRequest {
     services: service[]
 }
 
-interface service {
+export interface service {
+    _id:string
     price: string,
     name: string
 }

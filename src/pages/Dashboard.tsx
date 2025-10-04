@@ -3,8 +3,18 @@ import { Users, UserPlus, Briefcase, NotebookText } from 'lucide-react';
 import { getDashBoardData } from '../services/user.service';
 import type { DashboardResponse } from '../types/responseTypes/dashbiardResponse.';
 import Toast from '../utility/toast';
+import { useNavigate } from 'react-router-dom';
+import { setNavigator } from '../services/navigationService';
+import Loader from '../components/UI/Loader';
 
 const Dashboard: React.FC = () => {
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setNavigator(navigate);
+  }, [navigate]);
   const [dashBoarddata, setDashBoardData] = useState<DashboardResponse | null>(null)
 
   useEffect(() => {
@@ -13,13 +23,23 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
+      setLoading(true)
       const data = await getDashBoardData();
       if (data.data) {
         setDashBoardData(data.data)
       }
     } catch (error) {
 
+    } finally {
+      setLoading(false)
+
     }
+  }
+
+  if (loading) {
+    return (
+      <Loader />
+    )
   }
 
   return (
@@ -35,7 +55,8 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.userCount ? dashBoarddata?.userCount : "N/A"}</p>
+              <p className="text-2xl font-bold text-gray-900"> {dashBoarddata?.userCount && dashBoarddata.userCount >= 0 ? dashBoarddata.userCount : "N/A"}
+              </p>
 
             </div>
             <div className={`p-3 rounded-full bg-blue-500`}>
@@ -48,8 +69,8 @@ const Dashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Employees</p>
-              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.employeeCount ? dashBoarddata?.employeeCount : "N/A"}</p>
+              <p className="text-sm font-medium text-gray-600">Technician</p>
+              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.employeeCount ? dashBoarddata.employeeCount : "N/A"}</p>
 
             </div>
             <div className={`p-3 rounded-full bg-green-500`}>
@@ -61,7 +82,7 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Services</p>
-              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.serviceCount ? dashBoarddata?.serviceCount : "N/A"}</p>
+              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.serviceCount && dashBoarddata.serviceCount >= 0 ? dashBoarddata.serviceCount : "N/A"}</p>
 
             </div>
             <div className={`p-3 rounded-full bg-purple-500`}>
@@ -73,7 +94,8 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Services request</p>
-              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.serviceRequestCount ? dashBoarddata?.serviceRequestCount : "N/A"}</p>
+              {dashBoarddata?.serviceRequestCount}
+              <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.serviceRequestCount && dashBoarddata.serviceRequestCount >= 0 ? dashBoarddata.serviceRequestCount : "N/A"}</p>
 
             </div>
             <div className={`p-3 rounded-full bg-yellow-500`}>

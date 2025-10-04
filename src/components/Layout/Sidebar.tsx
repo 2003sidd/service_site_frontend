@@ -29,9 +29,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     { path: '/services', icon: Briefcase, label: 'Services' },
     { path: '/users', icon: Users, label: 'Users' },
     { path: '/employees', icon: UserPlus, label: 'Employees' },
-    { path: '/aboutUs', icon: BookOpenText  , label: 'About Us' },
-    { path: '/termAndCond', icon: ReceiptText, label: 'Terms and Conditions' },
-    { path: '/privacyPolicy', icon: BookLock , label: 'Privacy Policy' },
+    // { path: '/aboutUs', icon: BookOpenText  , label: 'About Us' },
+    // { path: '/termAndCond', icon: ReceiptText, label: 'Terms and Conditions' },
+    // { path: '/privacyPolicy', icon: BookLock , label: 'Privacy Policy' },
 
   ];
 

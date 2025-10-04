@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit, Eye, EyeOff } from 'lucide-react';
 import type { Employee } from '../types';
 import Button from '../components/UI/Button';
 import Input from '../components/UI/Input';
@@ -8,11 +8,12 @@ import { deleteEmployee, getEmployee, upsertEmployee } from '../services/employe
 import DataNotFound from './NoDataFound';
 import Toast from '../utility/toast';
 import * as Yup from 'Yup'
+import Loader from '../components/UI/Loader';
+import { toast } from 'react-toastify';
 
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
-  // const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
@@ -50,6 +51,7 @@ const Employees: React.FC = () => {
     try {
       // const data = await employeeAPI.getEmployees();
       // setEmployees(data);
+      setLoading(true)
 
       const data = await getEmployee({ index: 1, top: 10 })
       console.log("data is", data.data)
@@ -59,6 +61,7 @@ const Employees: React.FC = () => {
 
       }
     } catch (error) {
+
       console.error('Error fetching employees:', error);
     } finally {
       setLoading(false);
@@ -89,11 +92,7 @@ const Employees: React.FC = () => {
     e.preventDefault();
     try {
       await validationSchema.validate(formData, { abortEarly: false })
-      // if (editingEmployee) {
-      //   await employeeAPI.updateEmployee(editingEmployee.id, formData);
-      // } else {
-      //   await employeeAPI.createEmployee(formData);
-      // }
+
       const data = await upsertEmployee(formData)
       if (data.data) {
         fetchEmployees();
@@ -104,15 +103,11 @@ const Employees: React.FC = () => {
           Toast.success("Employee Added Successfully!");
         }
       } else {
-
+        toast.error(data.message)
       }
     } catch (err) {
       console.error('Error saving employee:', err);
-      if (editingEmployee) {
-        Toast.error("Failed to Update Employee!");
-      } else {
-        Toast.error("Failed to Add Employee!");
-      } if (err instanceof Yup.ValidationError) {
+      if (err instanceof Yup.ValidationError) {
         const newErrors: { [key: string]: string } = {};
         err.inner.forEach((error) => {
           if (error.path) {
@@ -120,6 +115,12 @@ const Employees: React.FC = () => {
           }
         });
         setErrors(newErrors);
+      } else {
+        if (editingEmployee) {
+          Toast.error("Failed to Update Employee!");
+        } else {
+          Toast.error("Failed to Add Employee!");
+        }
       }
     }
   };
@@ -185,9 +186,7 @@ const Employees: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      </div>
+      <Loader />
     );
   }
 
@@ -314,9 +313,8 @@ const Employees: React.FC = () => {
                 placeholder="Enter your name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                error={errors.name}
               />
-              {/* {errors.name && <div className='text-red-700 text-xs font-medium ps-2'>{errors.name}</div>} */}
-              {errors.name && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.name}</p>)}
             </div>
             <div>
               <Input
@@ -325,8 +323,9 @@ const Employees: React.FC = () => {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                error={errors.email}
+
               />
-              {errors.email && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.email}</p>)}
             </div>
 
             <div>
@@ -336,8 +335,8 @@ const Employees: React.FC = () => {
                 placeholder="Enter your number"
                 value={formData.number}
                 onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+                error={errors.number}
               />
-              {errors.number && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.number}</p>)}
             </div>
 
             <div className='relative'>
@@ -347,8 +346,9 @@ const Employees: React.FC = () => {
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                error={errors.password}
+
               />
-              {errors.password && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.password}</p>)}
 
               <button
                 type="button"
@@ -369,8 +369,9 @@ const Employees: React.FC = () => {
               rows={4}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Enter service Address..."
+
             />
-            {errors.address && (<p className="text-red-700 text-xs font-medium ps-2 pt-1">{errors.address}</p>)}
+            {errors.address && (<p className="font-semibold text-sm text-red-600 mt-[-8px] ps-2 pt-1">{errors.address}</p>)}
           </div>
 
           <div>

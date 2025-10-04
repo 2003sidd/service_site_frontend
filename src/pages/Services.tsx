@@ -7,6 +7,7 @@ import { getService, serviceCreation, toggleServiceview } from '../services/user
 import type { ServiceRequest } from '../types/requestTypes/serviceRequest.interface';
 import Toast from '../utility/toast';
 import * as Yup from 'Yup'
+import Loader from '../components/UI/Loader';
 
 const Services: React.FC = () => {
   const [services, setServices] = useState<ServiceRequest[]>([]);
@@ -18,7 +19,7 @@ const Services: React.FC = () => {
     name: '',
     description: '',
     services: [
-      { price: '', name: '' } // initial pricing field
+      {_id:'', price: '', name: '' } // initial pricing field
     ],
     isActive: true as true | false
   });
@@ -27,11 +28,11 @@ const Services: React.FC = () => {
     fetchServices();
   }, []);
   const [errors, setErrors] = useState<{
-      name?: string;
-      description?: string;
-      price?:string
-      ServiceName?: string
-    }>({});
+    name?: string;
+    description?: string;
+    price?: string
+    ServiceName?: string
+  }>({});
   const removeService = (index: number) => {
     setFormData(prev => ({
       ...prev,
@@ -44,7 +45,7 @@ const Services: React.FC = () => {
       ...prev,
       services: [
         ...prev.services,
-        { name: '', price: '' } // new blank service
+        {_id:'', name: '', price: '' } // new blank service
       ]
     }));
   };
@@ -93,7 +94,7 @@ const Services: React.FC = () => {
   const fetchServices = async () => {
     try {
       const data = await getService();
-      if(data.data){
+      if (data.data) {
         setServices(data.data)
 
       }
@@ -106,46 +107,43 @@ const Services: React.FC = () => {
   };
   const validationSchema = Yup.object({
     ServiceName: Yup.string().required("service name is required"),
-      name: Yup.string().required("name is required"),
-      description: Yup.string()
-        .required("service description is required"),
-      price: Yup.string()
+    name: Yup.string().required("name is required"),
+    description: Yup.string()
+      .required("service description is required"),
+    price: Yup.string()
       .matches(/^[0-9]+$/, "Price must be a number")
       .required("price is required"),
-    })
+  })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-            // await validationSchema.validate(formData, { abortEarly: false })
-      // if (editingService) {
-      //   await serviceAPI.updateService(editingService.id, formData);
-      // } else {
-      //   await serviceAPI.createService(formData);
-      // }
+      await validationSchema.validate(formData, { abortEarly: false })
+
       console.log("form si", formData);
       const data = await serviceCreation(formData);
       if (data.data) {
         fetchServices();
         closeModal();
-      if (editingService) {
-        Toast.success("Service Updated Successfully!");
-      } else {
-        Toast.success("Service Added Successfully!");
-      }      }
+        if (editingService) {
+          Toast.success("Service Updated Successfully!");
+        } else {
+          Toast.success("Service Added Successfully!");
+        }
+      }
     } catch (err) {
       console.error('Error saving service:', err);
-if (editingService) {
-      Toast.error("Failed to Update Service!");
-    } else {
-      Toast.error("Failed to Add Service!");
-    }      if (err instanceof Yup.ValidationError) {
-      const newErrors: { [key: string]: string } = {};
-      err.inner.forEach((error) => {
-      if (error.path) {
-      newErrors[error.path] = error.message;
-      }
-      });
-      setErrors(newErrors);
+      if (editingService) {
+        Toast.error("Failed to Update Service!");
+      } else {
+        Toast.error("Failed to Add Service!");
+      } if (err instanceof Yup.ValidationError) {
+        const newErrors: { [key: string]: string } = {};
+        err.inner.forEach((error) => {
+          if (error.path) {
+            newErrors[error.path] = error.message;
+          }
+        });
+        setErrors(newErrors);
       }
     }
   };
@@ -157,7 +155,7 @@ if (editingService) {
         const data = await toggleServiceview(id);
         if (data.data) {
           fetchServices();
-                    Toast.success("Service Deleted Successfully!");
+          Toast.success("Service Deleted Successfully!");
 
         } else {
 
@@ -165,7 +163,7 @@ if (editingService) {
         fetchServices();
       } catch (error) {
         console.error('Error deleting service:', error);
-          Toast.error("Failed to Delete Service!")
+        Toast.error("Failed to Delete Service!")
 
       }
     }
@@ -186,7 +184,7 @@ if (editingService) {
       setFormData({
         name: '',
         description: '',
-        services: [{ price: '', name: '' }],
+        services: [{_id:'', price: '', name: '' }],
 
         isActive: true
       });
@@ -203,9 +201,7 @@ if (editingService) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      </div>
+      <Loader />
     );
   }
 
@@ -286,7 +282,7 @@ if (editingService) {
         ))}
       </div>
 
-          {Array.isArray(services) && services.length === 0 && (
+      {Array.isArray(services) && services.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500">No services found matching your search.</p>
         </div>
@@ -320,7 +316,7 @@ if (editingService) {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Enter service description..."
             />
-          {errors.description && <div className='text-red-700 text-xs font-medium ps-2 pt-3'>{errors.description}</div>}
+            {errors.description && <div className='text-red-700 text-xs font-medium ps-2 pt-3'>{errors.description}</div>}
 
           </div>
 
@@ -330,30 +326,30 @@ if (editingService) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
                 <div>
-                <Input
-                  label="Name"
-                  type="text"
-                  className='bg-white'
-                  value={p.name}
-                  placeholder=""
-                  onChange={(e) => handleSerNameChange(index, e.target.value)}
-                />
-            {errors.name && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.name}</p>)}
-            </div>
+                  <Input
+                    label="Name"
+                    type="text"
+                    className='bg-white'
+                    value={p.name}
+                    placeholder=""
+                    onChange={(e) => handleSerNameChange(index, e.target.value)}
+                  />
+                  {errors.name && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.name}</p>)}
+                </div>
 
                 <section className='flex items-end justify-center gap-4'>
                   <div>
-                  <Input
-                    label="Price (&#8377;)"
-                    type="text"
-                    className='bg-white'
-                    value={p.price}
-                    onChange={(e) => handleSerPriceChange(index, e.target.value)}
-                  />
-            {errors.price && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.price}</p>)}
-                  {index != 0 &&
-                    <span onClick={() => { removeService(index) }} className='bg-red-400 p-2 text-white rounded-xl'>-</span>
-                  }
+                    <Input
+                      label="Price (&#8377;)"
+                      type="text"
+                      className='bg-white'
+                      value={p.price}
+                      onChange={(e) => handleSerPriceChange(index, e.target.value)}
+                    />
+                    {errors.price && (<p className="text-red-700 text-xs font-medium ps-2 pt-3">{errors.price}</p>)}
+                    {index != 0 &&
+                      <span onClick={() => { removeService(index) }} className='bg-red-400 p-2 text-white rounded-xl'>-</span>
+                    }
                   </div>
                 </section>
               </div>

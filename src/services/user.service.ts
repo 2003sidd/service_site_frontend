@@ -7,6 +7,7 @@ import type { ServiceRequest } from "../types/requestTypes/serviceRequest.interf
 import type { DashboardResponse } from "../types/responseTypes/dashbiardResponse.";
 import type { EmployeeLoginResponse } from "../types/responseTypes/employeeLoginResponse";
 import type { paginationUserResponse } from "../types/responseTypes/paginationResponse";
+import type { ServiceRequestInterface } from "../types/responseTypes/serviceResponse";
 import { get, post } from "./api";
 
 
@@ -33,7 +34,6 @@ export const getService = async () => {
     return get<genericResponse<ServiceRequest[]>>("/api/service/getService")
 }
 
-import { data } from 'react-router-dom';
 export const toggleServiceview = async (id: string) => {
     return get<genericResponse<boolean>>(`/api/service/toggleService/${id}`)
 }
@@ -46,5 +46,14 @@ export const deleteUser = async (id: string) => {
 
 export const getDashBoardData = async () => {
     return get<genericResponse<DashboardResponse>>('api/dashboard/dashboardRoute')
+}
+
+export const getServiceRequest = async () =>{
+    return get<genericResponse<ServiceRequestInterface[]>>('api/serviceRequest/getRequests')
+}
+
+
+export const getServiceRequestById = async (id:string) =>{
+    return get<genericResponse<ServiceRequestInterface>>(`api/serviceRequest/getRequest/${id}`)
 }
 

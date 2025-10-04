@@ -1,4 +1,5 @@
 import axios from "axios";
+import { navigate } from "./navigationService";
 
 
 
@@ -27,10 +28,16 @@ axiosInstance.interceptors.response.use(
   (error: { response: { status: number; }; }) => {
     if (error.response && error.response.status === 401) {
       // Handle Unauthorized (maybe redirect to login)
+      logout()
       console.error('Unauthorized, please login again');
     }
     return Promise.reject(error);
   }
 );
+export const logout = () => {
+
+  localStorage.clear();
+  navigate("/login")
+};
 
 export default axiosInstance;
