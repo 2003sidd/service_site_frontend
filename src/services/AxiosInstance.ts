@@ -4,7 +4,7 @@ import { navigate } from "./navigationService";
 
 
 const axiosInstance: any = axios.create({
-  baseURL: 'http://localhost:3000/', // Replace with your actual API URL
+  baseURL: 'http://localhost:3400/', // Replace with your actual API URL
   headers: {
     'Content-Type': 'application/json',
   },
@@ -28,14 +28,14 @@ axiosInstance.interceptors.response.use(
   (error: { response: { status: number; }; }) => {
     if (error.response && error.response.status === 401) {
       // Handle Unauthorized (maybe redirect to login)
-      logout()
+      logoutUser()
       console.error('Unauthorized, please login again');
     }
     return Promise.reject(error);
   }
 );
-export const logout = () => {
-
+export const logoutUser = () => {
+  // logout()
   localStorage.clear();
   navigate("/login")
 };

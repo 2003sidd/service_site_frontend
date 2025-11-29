@@ -7,12 +7,12 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   return (
-    <header className="bg-gray-200 shadow-sm border-b px-6 py-4">
+    <header className="bg-[var(--primary-color)] shadow-sm text-white border-b px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <button
             onClick={onMenuToggle}
-            className="lg:hidden p-2 rounded-md hover:bg-gray-100"
+            className="lg:hidden p-2 rounded-md hover:bg-[var(--hover-color)]"
           >
             <Menu size={20} />
           </button>

@@ -18,6 +18,11 @@ const Employees: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemPerPage, SetItemPerPage] = useState(10);
+  const [filterByRole, setFilterByRole] = useState<string>("All");
+
   const [formData, setFormData] = useState<{
     _id: string | null;
     name: string;
@@ -37,9 +42,13 @@ const Employees: React.FC = () => {
     password: '',
     role: ''
   });
+
+
   useEffect(() => {
-    fetchEmployees();
-  }, []);
+    fetchEmployees(currentPage);
+  }, [currentPage, itemPerPage, filterByRole]);
+
+
   const [errors, setErrors] = useState<{
     name?: string;
     email?: string;
@@ -47,19 +56,23 @@ const Employees: React.FC = () => {
     number?: string;
     address?: string;
   }>({});
-  const fetchEmployees = async () => {
+
+  const fetchEmployees = async (page = 1) => {
     try {
       // const data = await employeeAPI.getEmployees();
       // setEmployees(data);
       setLoading(true)
 
-      const data = await getEmployee({ index: 1, top: 10 })
+      const data = await getEmployee({ index: page, top: itemPerPage, filterByRole },)
       console.log("data is", data.data)
       if (data.data.total > 0) {
         setEmployees(data.data.users)
       } else {
-
+        setEmployees([])
+        setTotalPages(1)
       }
+      setCurrentPage(page);
+
     } catch (error) {
 
       console.error('Error fetching employees:', error);
@@ -182,14 +195,6 @@ const Employees: React.FC = () => {
     setErrors({});
   };
 
-
-
-  if (loading) {
-    return (
-      <Loader />
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col px-6 py-4 sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -197,7 +202,7 @@ const Employees: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">Employees</h1>
           <p className="text-gray-600">Manage company employees and their information</p>
         </section>
-        <Button className="bg-green-500" onClick={() => openModal()}>
+        <Button className="bg-[var(--primary-color)]" onClick={() => openModal()}>
           <Plus size={16} className="mr-2" />
           Add Employee
         </Button>
@@ -218,85 +223,107 @@ const Employees: React.FC = () => {
       </div> */}
 
       {/* Employees Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Employee
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Number
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Address
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {Array.isArray(employees) && employees.map((employee) => (
-                <tr key={employee._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4  whitespace-nowrap">
-                    <div className="flex items-center justify-center">
+      {loading ? <Loader /> :
+        <>
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
 
-                      <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+              <div className='my-4 mx-4'>
+                <label className='font-semibold'>Role: </label>
+                <select
+                  onChange={(event) => setFilterByRole(event.target.value)}
+                  value={filterByRole}
+                  className="font-semibold p-2"
+                >
+                  <option value="All">All</option>
+                  <option value="Admin">Admin</option>
+                  <option value="SuperAdmin">SuperAdmin</option>
+                  <option value="Technician">Technician</option>
+                </select>
 
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {employee.number}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="flex justify-center items-center px-2.5 py-0.5 rounded-full text-xs font-medium ">
-                      {employee.email}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="flex justify-center items-center px-2.5 py-0.5 rounded-full text-xs font-medium ">
-                      {employee?.address}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                    {employee.role}
-                  </td>
+              </div>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Employee
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Number
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Address
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {Array.isArray(employees) && employees.map((employee) => (
+                    <tr key={employee._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4  whitespace-nowrap">
+                        <div className="flex items-center justify-center">
 
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-center font-medium">
-                    <div className="flex items-center justify-center space-x-2">
-                      <button
-                        onClick={() => openModal(employee)}
-                        className="text-primary-600 hover:text-primary-900 p-1"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(employee._id!!)}
-                        className="text-red-600 hover:text-red-900 p-1"
-                      >
-                        {employee.isActive ? <Eye /> : <EyeOff />}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                          <div className="text-sm font-medium text-gray-900">{employee.name}</div>
 
-      {Array.isArray(employees) && employees.length == 0 && <div>
-        <DataNotFound />
-      </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {employee.number}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="flex justify-center items-center px-2.5 py-0.5 rounded-full text-xs font-medium ">
+                          {employee.email}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="flex justify-center items-center px-2.5 py-0.5 rounded-full text-xs font-medium ">
+                          {employee?.address}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        {employee.role}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-center font-medium">
+                        <div className="flex items-center justify-center space-x-2">
+                          <button
+                            onClick={() => openModal(employee)}
+                            className="text-primary-600 hover:text-primary-900 p-1"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(employee._id!!)}
+                            className="text-red-600 hover:text-red-900 p-1"
+                          >
+                            {employee.isActive ? <Eye /> : <EyeOff />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {Array.isArray(employees) && employees.length == 0 && <div>
+            <DataNotFound />
+          </div>
+
+          }
+        </>
       }
+
+
       {/* Employee Modal */}
       <Modal
         isOpen={isModalOpen}
@@ -399,6 +426,41 @@ const Employees: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+
+      {employees.length > 0 && (
+        <div className="flex justify-end mr-8 items-center mt-4 space-x-2">
+          <div >
+            <span className='mx-2'>
+              No. of page
+
+            </span>
+            <select className='p-[6px] rounded-lg bg-gray-200' name="page" id="page" onChange={(event) => { SetItemPerPage((event?.target.value) as unknown as number) }}>
+              <option selected value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-gray-900">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="secondary"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </div>
+      )}
+
     </div>
   );
 };

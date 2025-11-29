@@ -3,3 +3,7 @@ export interface paginationType {
     top:number,
     searchBy?:string
 }
+
+export interface employteeRequestInterface extends paginationType{
+    filterByRole:String
+}

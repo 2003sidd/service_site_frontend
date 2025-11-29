@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Users, UserPlus, Briefcase, NotebookText } from 'lucide-react';
 import { getDashBoardData } from '../services/user.service';
 import type { DashboardResponse } from '../types/responseTypes/dashbiardResponse.';
-import Toast from '../utility/toast';
 import { useNavigate } from 'react-router-dom';
 import { setNavigator } from '../services/navigationService';
 import Loader from '../components/UI/Loader';
 
 const Dashboard: React.FC = () => {
+  
 
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -94,7 +94,6 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Services request</p>
-              {dashBoarddata?.serviceRequestCount}
               <p className="text-2xl font-bold text-gray-900">{dashBoarddata?.serviceRequestCount && dashBoarddata.serviceRequestCount >= 0 ? dashBoarddata.serviceRequestCount : "N/A"}</p>
 
             </div>
@@ -105,11 +104,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div>
-
-        <button className='m-5 bg-green-500 p-2 text-white rounded' onClick={() => { Toast.success("success") }}>Success</button>
-        <button className='m-5 bg-red-500 p-2 text-white rounded' onClick={() => { Toast.error("error is occured") }}>Error</button>
-      </div>
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -140,16 +134,16 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {[1, 2, 3, 4].map((item) => (
-                <div key={item} className="flex items-center justify-between">
+              {Array.isArray(dashBoarddata?.serviceRequest) && dashBoarddata.serviceRequest.length > 0 && dashBoarddata?.serviceRequest.map((item, key) => (
+                <div key={key} className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Service {item}</p>
-                    <p className="text-xs text-gray-500">Web Development</p>
+                    <p className="text-sm font-medium text-gray-900">{item.serviceId.name}</p>
+                    <p className="text-xs text-gray-500">{item.subServiceName}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">${item * 100}</p>
+                    <p className="text-sm font-medium text-gray-900"> &#8377; {item.amount}</p>
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      Active
+                      {item.status}
                     </span>
                   </div>
                 </div>

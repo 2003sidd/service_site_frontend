@@ -1,9 +1,13 @@
+import type { ServiceRequest } from "../requestTypes/serviceRequest.interface"
+import type { ServiceRequestInterface } from "./serviceResponse"
+
 export interface DashboardResponse {
     user: UserInterface[],
     userCount: number,
     employeeCount: number,
     serviceCount: number,
-    serviceRequestCount:number
+    serviceRequestCount:number,
+    serviceRequest:ServiceRequestInterface[]
 };
 
 interface UserInterface {

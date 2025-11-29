@@ -7,7 +7,7 @@ export interface ServiceRequest {
 }
 
 export interface service {
-    _id:string
+    _id ?:string
     price: string,
     name: string
 }

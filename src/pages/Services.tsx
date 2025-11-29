@@ -19,20 +19,24 @@ const Services: React.FC = () => {
     name: '',
     description: '',
     services: [
-      {_id:'', price: '', name: '' } // initial pricing field
+      { _id: '', price: '', name: '' } // initial pricing field
     ],
     isActive: true as true | false
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+
   useEffect(() => {
     fetchServices();
   }, []);
-  const [errors, setErrors] = useState<{
-    name?: string;
-    description?: string;
-    price?: string
-    ServiceName?: string
-  }>({});
+  // const [errors, setErrors] = useState<{
+  //   name?: string;
+  //   description?: string;
+  //   price?: string
+  //   ServiceName?: string
+  // }>({});
+
   const removeService = (index: number) => {
     setFormData(prev => ({
       ...prev,
@@ -45,7 +49,7 @@ const Services: React.FC = () => {
       ...prev,
       services: [
         ...prev.services,
-        {_id:'', name: '', price: '' } // new blank service
+        { name: '', price: '' } // new blank service
       ]
     }));
   };
@@ -106,20 +110,36 @@ const Services: React.FC = () => {
     }
   };
   const validationSchema = Yup.object({
-    ServiceName: Yup.string().required("service name is required"),
-    name: Yup.string().required("name is required"),
+
+    name: Yup.string()
+      .trim()
+      .required("Service name is required"),
+
     description: Yup.string()
-      .required("service description is required"),
-    price: Yup.string()
-      .matches(/^[0-9]+$/, "Price must be a number")
-      .required("price is required"),
+      .trim()
+      .required("Service description is required"),
+
+    services: Yup.array()
+      .of(
+        Yup.object({
+          name: Yup.string()
+            .trim()
+            .required("Sub-service name is required"),
+          price: Yup.string()
+            .matches(/^\d+(\.\d{1,2})?$/, "Price must be a valid number")
+            .required("Sub-service price is required"),
+        })
+      )
+      .min(1, "At least one sub-service is required"),
+
   })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await validationSchema.validate(formData, { abortEarly: false })
+      // await validationSchema.validate(formData, { abortEarly: false })
+      await validationSchema.validate(formData, { abortEarly: false });
+      setErrors({}); // clear previous errors
 
-      console.log("form si", formData);
       const data = await serviceCreation(formData);
       if (data.data) {
         fetchServices();
@@ -131,20 +151,30 @@ const Services: React.FC = () => {
         }
       }
     } catch (err) {
-      console.error('Error saving service:', err);
-      if (editingService) {
-        Toast.error("Failed to Update Service!");
-      } else {
-        Toast.error("Failed to Add Service!");
-      } if (err instanceof Yup.ValidationError) {
-        const newErrors: { [key: string]: string } = {};
+      if (err instanceof Yup.ValidationError) {
+        const newErrors: any = {};
         err.inner.forEach((error) => {
-          if (error.path) {
-            newErrors[error.path] = error.message;
-          }
+          if (error.path) newErrors[error.path] = error.message;
         });
         setErrors(newErrors);
+      } else {
+        console.error("Error saving service:", err);
+        Toast.error(editingService ? "Failed to Update Service!" : "Failed to Add Service!");
       }
+      // console.error('Error saving service:', err);
+      // if (editingService) {
+      //   Toast.error("Failed to Update Service!");
+      // } else {
+      //   Toast.error("Failed to Add Service!");
+      // } if (err instanceof Yup.ValidationError) {
+      //   const newErrors: { [key: string]: string } = {};
+      //   err.inner.forEach((error) => {
+      //     if (error.path) {
+      //       newErrors[error.path] = error.message;
+      //     }
+      //   });
+      //   setErrors(newErrors);
+      // }
     }
   };
 
@@ -184,7 +214,7 @@ const Services: React.FC = () => {
       setFormData({
         name: '',
         description: '',
-        services: [{_id:'', price: '', name: '' }],
+        services: [{ price: '', name: '' }],
 
         isActive: true
       });
@@ -199,12 +229,6 @@ const Services: React.FC = () => {
   };
 
 
-  if (loading) {
-    return (
-      <Loader />
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex p-6 my-1 flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -213,7 +237,7 @@ const Services: React.FC = () => {
           <p className="text-gray-600">Manage company services and offerings</p>
         </section>
 
-        <Button className="bg-green-500" onClick={() => openModal()}>
+        <Button className="bg-[var(--primary-color)]" onClick={() => openModal()}>
           <Plus size={16} className="mr-2" />
           Add Service
         </Button>
@@ -232,61 +256,71 @@ const Services: React.FC = () => {
       </div> */}
       <hr className="text-gray-300 my-4" />
       {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mx-2">
-        {Array.isArray(services) && services.map((service) => (
-          <div key={service._id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">{service.name}</h3>
-                  <p className="text-sm text-gray-600 mb-1 line-clamp-3">{service.description}</p>
-                </div>
-                <div className="flex items-center space-x-1 ml-2">
-                  <button
-                    onClick={() => openModal(service)}
-                    className="text-primary-600 hover:text-primary-900 p-1"
-                  >
-                    <Edit size={16} />
-                  </button>
 
-                  <button
-                    onClick={() => handleDelete(service._id!!)}
-                    className="text-red-600 hover:text-red-900 p-1">
-                    {service.isActive ? <Eye /> : <EyeOff />}
 
-                  </button>
-                </div>
-              </div>
 
-              <div className="flex items-start justify-between">
-                <div>
-
-                  {Array.isArray(services) && service.services.length > 0 && service.services.map((data, index) => (
-                    <div key={index} className='flex justify-between font-semibold'>
-                      {data.name}    <span className='mx-2 grow font-normal'> - &#8377; {data.price}</span>
+      {loading ? <Loader /> :
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mx-2">
+            {Array.isArray(services) && services.map((service) => (
+              <div key={service._id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">{service.name}</h3>
+                      <p className="text-sm text-gray-600 mb-1 line-clamp-3">{service.description}</p>
                     </div>
-                  ))
+                    <div className="flex items-center space-x-1 ml-2">
+                      <button
+                        onClick={() => openModal(service)}
+                        className="text-primary-600 hover:text-primary-900 p-1"
+                      >
+                        <Edit size={16} />
+                      </button>
 
-                  }
+                      <button
+                        onClick={() => handleDelete(service._id!!)}
+                        className="text-red-600 hover:text-red-900 p-1">
+                        {service.isActive ? <Eye /> : <EyeOff />}
+
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start justify-between">
+                    <div>
+
+                      {Array.isArray(services) && service.services.length > 0 && service.services.map((data, index) => (
+                        <div key={index} className='flex justify-between font-semibold'>
+                          {data.name}    <span className='mx-2 grow font-normal'> - &#8377; {data.price}</span>
+                        </div>
+                      ))
+
+                      }
+                    </div>
+
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${service.isActive
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
+                      {service.isActive ? "Active" : "Inactive"}
+                    </span>
+                  </div>
                 </div>
-
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${service.isActive
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
-                  }`}>
-                  {service.isActive ? "Active" : "Inactive"}
-                </span>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {Array.isArray(services) && services.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500">No services found matching your search.</p>
-        </div>
-      )}
+          {Array.isArray(services) && services.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No services found matching your search.</p>
+            </div>
+          )}
+        </>
+      }
+
+
+
 
       {/* Service Modal */}
       <Modal
@@ -303,10 +337,10 @@ const Services: React.FC = () => {
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
-          {errors.ServiceName && <div className='text-red-700 text-xs font-medium ps-2'>{errors.ServiceName}</div>}
+          {errors.name && <div className='text-red-700 text-xs font-medium ps-2 pt-0'>{errors.name}</div>}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 my-2">
               Description
             </label>
             <textarea
@@ -316,13 +350,13 @@ const Services: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Enter service description..."
             />
-            {errors.description && <div className='text-red-700 text-xs font-medium ps-2 pt-3'>{errors.description}</div>}
+            {errors.description && <div className='text-red-700 text-xs font-medium ps-2 pt-0'>{errors.description}</div>}
 
           </div>
 
           <div className='bg-gray-100 p-4 rounded max-h-[400px] overflow-y-auto'>
             <h2 className='my-[6px] font-semibold text-lg'>Sub - Services</h2>
-            {formData.services.map((p, index) => (
+            {/* {formData.services.map((p, index) => (
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
                 <div>
@@ -353,7 +387,53 @@ const Services: React.FC = () => {
                   </div>
                 </section>
               </div>
+            ))} */}
+
+            {formData.services.map((p, index) => (
+              <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
+                <div>
+                  <Input
+                    label="Name"
+                    type="text"
+                    className="bg-white"
+                    value={p.name}
+                    onChange={(e) => handleSerNameChange(index, e.target.value)}
+                  />
+                  {errors[`services[${index}].name`] && (
+                    <p className="text-red-700 text-xs font-medium ps-2 pt-1">
+                      {errors[`services[${index}].name`]}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <div className='flex gap-2'>
+                    <Input
+                      label="Price (₹)"
+                      type="text"
+                      className="bg-white"
+                      value={p.price}
+                      onChange={(e) => handleSerPriceChange(index, e.target.value)}
+                    />
+
+                    {index !== 0 && (
+                      <span
+                        onClick={() => removeService(index)}
+                        className="bg-red-400 p-2 text-white rounded-xl cursor-pointer self-end"
+                      >
+                        -
+                      </span>
+                    )}
+                  </div>
+                  {errors[`services[${index}].price`] && (
+                    <p className="text-red-700 text-xs font-medium ps-2 pt-1">
+                      {errors[`services[${index}].price`]}
+                    </p>
+                  )}
+                </div>
+
+              </div>
             ))}
+
             <div className='text-end' >
               <span className='bg-yellow-300 py-1 px-4 rounded-lg mt-2 font-semibold cursor-pointer' onClick={addService}>Add</span>
 

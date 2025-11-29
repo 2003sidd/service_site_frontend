@@ -12,6 +12,8 @@ import PageNotFound from './pages/PageNotFound';
 import NewServices from './pages/NewServiceRequest';
 import ServicesRequest from './pages/ServiceRequest';
 import ServiceDetail from './pages/ServiceRequestDetail';
+import Configration from './pages/Configration';
+import AboutUs from './pages/aboutus';
 
 function App() {
 
@@ -22,6 +24,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        
+        
           <Route
             path="/*"
             element={
@@ -31,6 +35,8 @@ function App() {
             }
           >
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="config" element={<Configration />} />
+            <Route path="aboutUs" element={<AboutUs />} />
             <Route path="serviceRequestDetail/:id" element={<ServiceDetail />} />
             <Route path="newRequest" element={<NewServices />} />
             <Route path="request" element={<ServicesRequest />} />

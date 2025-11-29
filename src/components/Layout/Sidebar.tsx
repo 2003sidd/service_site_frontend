@@ -32,6 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     // { path: '/aboutUs', icon: BookOpenText  , label: 'About Us' },
     // { path: '/termAndCond', icon: ReceiptText, label: 'Terms and Conditions' },
     // { path: '/privacyPolicy', icon: BookLock , label: 'Privacy Policy' },
+    { path: '/config', icon: BookLock , label: 'Configration' },
 
   ];
 
@@ -56,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         lg:translate-x-0 lg:static lg:z-auto
         w-64
       `}>
-        <div className="flex flex-col h-full ">
+        <div className="flex flex-col h-full  bg-gray-200">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
@@ -71,8 +72,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           {/* User Info */}
           <div className="p-6 border-b ">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-medium bg-green-500 py-3 uppercase px-5 mr-2 rounded-4xl">
+              <div className="w-10 h-10 bg-[var(--primary-color)] rounded-full flex items-center justify-center">
+                <span className="text-white font-medium bg-[var(--primary-color)] py-3 uppercase px-5 mr-2 rounded-4xl">
                   {user?.name?.charAt(0) || 'A'}
                 </span>
               </div>
@@ -93,8 +94,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     className={({ isActive }) =>
                       `flex items-center space-x-3 text-gray-800 font-semibold px-4 py-3 rounded-lg transition-colors ${
                         isActive
-                          ? 'bg-green-500 text-white'
-                          : ' hover:bg-gray-100'
+                          ? 'bg-[var(--primary-color)] text-white'
+                          : ' hover:bg-gray-200'
                       }`
                     }
                     onClick={() => window.innerWidth < 1024 && onToggle()}
@@ -111,7 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           <div className="p-4 border-t">
             <button
               onClick={handleLogout}
-              className="flex items-center space-x-3 px-4 py-3 w-full text-left text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="flex items-center space-x-3 px-4 py-3 w-full text-left font-semibold text-[var(--primary-color)] rounded-lg transition-colors"
             >
               <LogOut size={20} />
               <span>Logout</span>
