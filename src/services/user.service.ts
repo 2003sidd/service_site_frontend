@@ -1,4 +1,3 @@
-import { data } from "react-router-dom";
 import type { genericResponse } from "../types/genericResponse";
 import type { paginationType } from "../types/pagniation.interface";
 import type { loginRequest } from "../types/requestTypes/loginRequest.interface";

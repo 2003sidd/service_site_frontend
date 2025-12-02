@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react'
+import React, { useCallback, useState } from 'react'
 import { createEditor, type Descendant, Editor, Transforms, Element as SlateElement } from 'slate'
 import { Slate, Editable, withReact, useSlate } from 'slate-react'
 import type { BaseEditor } from 'slate'

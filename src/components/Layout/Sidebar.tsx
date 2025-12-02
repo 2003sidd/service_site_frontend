@@ -1,16 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  Users, 
-  UserPlus, 
-  Briefcase, 
-  Settings, 
+import {
+  Users,
+  UserPlus,
+  Briefcase,
+  Settings,
   LogOut,
-  Menu,
   X,
-  ReceiptText,
   BookLock,
-  BookOpenText
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,6 +18,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const { logout, user } = useAuth();
+  const [alertDialog, setAlertDialog ] = useState<Boolean>(false)
 
   const menuItems = [
     { path: '/dashboard', icon: Settings, label: 'Dashboard' },
@@ -32,24 +30,52 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     // { path: '/aboutUs', icon: BookOpenText  , label: 'About Us' },
     // { path: '/termAndCond', icon: ReceiptText, label: 'Terms and Conditions' },
     // { path: '/privacyPolicy', icon: BookLock , label: 'Privacy Policy' },
-    { path: '/config', icon: BookLock , label: 'Configration' },
+    { path: '/config', icon: BookLock, label: 'Configration' },
 
   ];
 
   const handleLogout = () => {
-    logout();
+    setAlertDialog(true)
   };
+
+  const logoutUser = () => {
+    logout();
+  }
+
+  const closeDialog = () => {
+    setAlertDialog(false)
+  }
 
   return (
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0  bg-opacity-50 z-40 lg:hidden"
           onClick={onToggle}
         />
       )}
-      
+
+      {
+        alertDialog && <>
+          <div className='absolute inset-0 bg-gray-100 opacity-50 z-100 '>
+          </div>
+
+          <div className=' absolute inset-0 z-1000 flex justify-center items-center '>
+
+            <div className='bg-white p-4 rounded-xl border-1 border-gray-200'>
+              <p className='font-bold'>Are you sure you want to logout</p>
+              <div className='flex justify-end gap-4 my-3'>
+                <button className='font-semibold bg-yellow-400 text-white  p-2 rounded-lg' onClick={closeDialog}>Cancel</button>
+                <button className='font-semibold bg-red-500 p-2 text-white rounded-lg' onClick={logoutUser}>Logout</button>
+              </div>
+            </div>
+          </div> </>
+      }
+
+
+
+
       {/* Sidebar */}
       <div className={` 
         fixed top-0 left-0 h-full bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out
@@ -57,6 +83,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         lg:translate-x-0 lg:static lg:z-auto
         w-64
       `}>
+
+
+
         <div className="flex flex-col h-full  bg-gray-200">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
@@ -92,10 +121,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                   <NavLink
                     to={item.path}
                     className={({ isActive }) =>
-                      `flex items-center space-x-3 text-gray-800 font-semibold px-4 py-3 rounded-lg transition-colors ${
-                        isActive
-                          ? 'bg-[var(--primary-color)] text-white'
-                          : ' hover:bg-gray-200'
+                      `flex items-center space-x-3 text-gray-800 font-semibold px-4 py-3 rounded-lg transition-colors ${isActive
+                        ? 'bg-[var(--primary-color)] text-white'
+                        : ' hover:bg-gray-200'
                       }`
                     }
                     onClick={() => window.innerWidth < 1024 && onToggle()}

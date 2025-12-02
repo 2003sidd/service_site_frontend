@@ -1,4 +1,4 @@
-import type { service, ServiceRequest } from "../requestTypes/serviceRequest.interface"
+import type { ServiceRequest } from "../requestTypes/serviceRequest.interface"
 export interface paginationServiceResponse {
     data: ServiceRequestInterface[],
     total: number
@@ -20,9 +20,14 @@ export interface ServiceRequestInterface {
     subServiceName: string
     csrPath: string,
     address: string
-    assignTo: string,
-    assignmentRequest:string, 
+    assignTo: techInfo,
+    assignmentRequest:techInfo, 
     comment: string,
     amount: string,
     status: string
+}
+
+interface techInfo {
+    name:string,
+    number:string
 }

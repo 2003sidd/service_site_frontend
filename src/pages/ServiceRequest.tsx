@@ -1,50 +1,76 @@
 import { EyeIcon, Search } from "lucide-react";
 import Input from "../components/UI/Input";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DataNotFound from "./NoDataFound";
 import { getServiceRequest } from "../services/user.service";
 import type { ServiceRequestInterface } from "../types/responseTypes/serviceResponse";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Button from "../components/UI/Button";
 import Loader from "../components/UI/Loader";
 import type { AxiosError } from "axios";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { debounce } from "lodash";
+import Toast from "../utility/toast";
 
 const NewServices: React.FC = () => {
 
     const navigate = useNavigate()
     const { logout } = useAuth();
 
-    const [searchTerm, setSearchTerm] = useState('');
     const [newService, SetNewService] = useState<ServiceRequestInterface[] | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [itemPerPage, SetItemPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const [search, setSearch] = useState("");
+
     useEffect(() => {
         fetchServiceRequest(currentPage);
-    }, [currentPage, itemPerPage]);
+    }, [currentPage, search]);
 
     function navigateToDetail(id: string) {
         navigate(`/serviceRequestDetail/${id}`)
     }
 
+
+    // Debounced function
+    const debouncedSearch = useMemo(() => {
+        const fn = debounce((value: string) => {
+            console.log("Debouncing with " + value);
+            setSearch(value);
+            setCurrentPage(1);
+        }, 1000);
+
+        return fn;
+    }, []);
+
+    // Handle input changes
+    const handleSearch = (value: string) => {
+        setSearchTerm(value);
+        debouncedSearch.cancel();
+
+        debouncedSearch(value);
+    };
+
+
     async function fetchServiceRequest(page = 1) {
         try {
             setLoading(true)
             const newService = await getServiceRequest({ index: page, top: itemPerPage });
-            console.log("new services is", newService)
 
             if (newService && newService.data != null && newService.data.data != null && newService.data.data.length > 0) {
                 SetNewService(newService.data.data)
                 let temp = Math.ceil(newService.data.total / itemPerPage);
-                console.log("temp is", temp)
                 setTotalPages(temp)
+            } else {
+                SetNewService(null)
+                setTotalPages(0)
+                Toast.error(newService.message)
             }
         } catch (error) {
-            console.log("Error", error);
             // First, ensure the error is an AxiosError
             if (axios.isAxiosError(error)) {
                 // Now that TypeScript knows this is an AxiosError, we can access error.response
@@ -81,7 +107,7 @@ const NewServices: React.FC = () => {
                     type="text"
                     placeholder="Search New Service..."
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => handleSearch(e.target.value)}
                     className="pl-10"
                 />
             </div>

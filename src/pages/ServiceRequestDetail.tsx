@@ -7,17 +7,21 @@ import type { TechnicianResponse } from "../types/responseTypes/TechnicianRespon
 import Toast from "../utility/toast";
 import type { ServiceAssign } from "../types/requestTypes/serviceAssign.interface";
 import { PhoneIcon } from "lucide-react";
+import type { AxiosError } from "axios";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const ServiceDetail: React.FC = () => {
+    const { logout } = useAuth();
+
     const { id } = useParams();
     const [newService, setnewService] = useState<ServiceRequestInterface | null>(null);
     const [technician, setTechnician] = useState<TechnicianResponse[] | null>(null);
 
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [selectedOption, setSelectedOption] = useState<any>(null);
     const navigate = useNavigate()
     const handleChange = (option: any) => {
         setSelectedOption(option);
-        console.log(`Option selected:`, option);
     };
 
     useEffect(() => {
@@ -36,10 +40,22 @@ const ServiceDetail: React.FC = () => {
             if (data.data) {
                 setTechnician(data.data)
             } else {
+                setTechnician(null)
                 Toast.error(data.message)
             }
         } catch (error) {
+            if (axios.isAxiosError(error)) {
+                // Now that TypeScript knows this is an AxiosError, we can access error.response
+                const axiosError = error as AxiosError;
 
+                if (axiosError.response) {
+                    // Handle API response errors (e.g., 400, 404, 500, etc.)
+                    if (axiosError.response.status === 401) {
+
+                        logout();
+                    }
+                }
+            }
         }
     }
 
@@ -48,14 +64,12 @@ const ServiceDetail: React.FC = () => {
 
 
             if (selectedOption && selectedOption.value && newService) {
-                console.log(selectedOption.value);
                 let payload: ServiceAssign = {
                     _id: newService?._id,
                     employeeId: selectedOption.value
                 }
                 const data = await assignServiceRequest(payload);
                 if (data.data) {
-                    console.log("data is ", data)
                     Toast.success(data.message);
                     navigate(-1)
                 } else {
@@ -69,7 +83,18 @@ const ServiceDetail: React.FC = () => {
 
             }
         } catch (error: any) {
-            console.log(error)
+               if (axios.isAxiosError(error)) {
+                // Now that TypeScript knows this is an AxiosError, we can access error.response
+                const axiosError = error as AxiosError;
+
+                if (axiosError.response) {
+                    // Handle API response errors (e.g., 400, 404, 500, etc.)
+                    if (axiosError.response.status === 401) {
+
+                        logout();
+                    }
+                }
+            }
             Toast.error(error);
 
         }
@@ -82,12 +107,24 @@ const ServiceDetail: React.FC = () => {
                 if (data.data) {
                     setnewService(data.data)
                 } else {
+                    setnewService(null)
                     Toast.error(data.message ? data.message : "Something went wrong")
                 }
 
             }
         } catch (error) {
+            if (axios.isAxiosError(error)) {
+                // Now that TypeScript knows this is an AxiosError, we can access error.response
+                const axiosError = error as AxiosError;
 
+                if (axiosError.response) {
+                    // Handle API response errors (e.g., 400, 404, 500, etc.)
+                    if (axiosError.response.status === 401) {
+
+                        logout();
+                    }
+                }
+            }
         }
     }
     return (
@@ -158,9 +195,9 @@ const ServiceDetail: React.FC = () => {
                     <p className="font-semibold p-2">Description - <span className="font-normal">{newService?.description}</span> </p>
                     <p className="bg-gray-100 p-2 font-semibold">Address - <span className="font-normal">{newService?.address}</span> </p>
                     <p className="font-semibold p-2">Amount - <span className="font-normal"> &#8377; {newService?.amount}</span> </p>
-                    {newService?.assignTo && <p className="font-semibold bg-gray-100 p-2">Assign To - <span className="font-normal"> {newService?.assignTo.name} (<PhoneIcon className="inline h-4 p-0"/>{newService?.assignTo.number})</span> </p>}
-                    {newService?.assignmentRequest && <p className="font-semibold bg-gray-100 p-2">Assign Request - <span className="font-normal"> {newService?.assignmentRequest.name} ( <PhoneIcon className="inline h-4 p-0"/>{newService?.assignTo.number})</span> </p>}
-                    {newService?.comment && <p className="font-semibold  p-2">Comment - <span className="font-normal"> {newService?.comment} ( <PhoneIcon className="inline h-4 p-0"/>{newService?.assignTo.number})</span> </p>}
+                    {newService?.assignTo && <p className="font-semibold bg-gray-100 p-2">Assign To - <span className="font-normal"> {newService?.assignTo.name} (<PhoneIcon className="inline h-4 p-0" />{newService?.assignTo.number})</span> </p>}
+                    {newService?.assignmentRequest && <p className="font-semibold bg-gray-100 p-2">Assign Request - <span className="font-normal"> {newService?.assignmentRequest.name} ( <PhoneIcon className="inline h-4 p-0" />{newService?.assignmentRequest.number})</span> </p>}
+                    {newService?.comment && <p className="font-semibold  p-2">Comment - <span className="font-normal"> {newService?.comment} </span> </p>}
                 </div>
 
 

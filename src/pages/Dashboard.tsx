@@ -5,9 +5,14 @@ import type { DashboardResponse } from '../types/responseTypes/dashbiardResponse
 import { useNavigate } from 'react-router-dom';
 import { setNavigator } from '../services/navigationService';
 import Loader from '../components/UI/Loader';
+import type { AxiosError } from 'axios';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import Toast from '../utility/toast';
 
 const Dashboard: React.FC = () => {
-  
+
+  const { logout } = useAuth();
 
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -27,9 +32,23 @@ const Dashboard: React.FC = () => {
       const data = await getDashBoardData();
       if (data.data) {
         setDashBoardData(data.data)
+      } else {
+        Toast.error(data.message);
+        setDashBoardData(null)
       }
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Now that TypeScript knows this is an AxiosError, we can access error.response
+        const axiosError = error as AxiosError;
 
+        if (axiosError.response) {
+          // Handle API response errors (e.g., 400, 404, 500, etc.)
+          if (axiosError.response.status === 401) {
+
+            logout();
+          }
+        }
+      }
     } finally {
       setLoading(false)
 

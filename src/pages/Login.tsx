@@ -6,9 +6,12 @@ import Input from '../components/UI/Input';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { loginAdmins } from '../services/user.service';
 import type { loginRequest } from '../types/requestTypes/loginRequest.interface';
+import axios, { AxiosError } from 'axios';
+import Toast from '../utility/toast';
 
 const Login: React.FC = () => {
-  const { isAuthenticated, login } = useAuth();
+
+  const { isAuthenticated, login, logout } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -27,18 +30,30 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      // const response = await authAPI.login(formData);
-      // login(response.data.user, response.data.token);
       let obj: loginRequest = {
         email: formData.email,
         password: formData.password,
         type: 0
       };
       const data = await loginAdmins(obj);
-      if(data.data.jwt){
+      if (data.data.jwt) {
         login(data.data.employee, data.data.jwt)
+      } else {
+        Toast.error(data.message)
       }
     } catch (err) {
+      if (axios.isAxiosError(error)) {
+        // Now that TypeScript knows this is an AxiosError, we can access error.response
+        const axiosError = error as AxiosError;
+
+        if (axiosError.response) {
+          // Handle API response errors (e.g., 400, 404, 500, etc.)
+          if (axiosError.response.status === 401) {
+
+            logout();
+          }
+        }
+      }
       setError('Invalid email or password');
     } finally {
       setLoading(false);

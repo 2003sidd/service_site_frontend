@@ -8,8 +8,13 @@ import type { ServiceRequest } from '../types/requestTypes/serviceRequest.interf
 import Toast from '../utility/toast';
 import * as Yup from 'Yup'
 import Loader from '../components/UI/Loader';
+import type { AxiosError } from 'axios';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Services: React.FC = () => {
+  const { logout } = useAuth();
+
   const [services, setServices] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -100,10 +105,27 @@ const Services: React.FC = () => {
       const data = await getService();
       if (data.data) {
         setServices(data.data)
+      } else {
+        setServices([])
+        Toast.error(data.message)
 
       }
 
     } catch (error) {
+
+      if (axios.isAxiosError(error)) {
+        // Now that TypeScript knows this is an AxiosError, we can access error.response
+        const axiosError = error as AxiosError;
+
+        if (axiosError.response) {
+          // Handle API response errors (e.g., 400, 404, 500, etc.)
+          if (axiosError.response.status === 401) {
+
+            logout();
+          }
+        }
+      }
+
       console.error('Error fetching services:', error);
     } finally {
       setLoading(false);
@@ -136,7 +158,6 @@ const Services: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // await validationSchema.validate(formData, { abortEarly: false })
       await validationSchema.validate(formData, { abortEarly: false });
       setErrors({}); // clear previous errors
 
@@ -149,8 +170,25 @@ const Services: React.FC = () => {
         } else {
           Toast.success("Service Added Successfully!");
         }
+      } else {
+        Toast.error(data.message)
       }
     } catch (err) {
+
+      if (axios.isAxiosError(err)) {
+        // Now that TypeScript knows this is an AxiosError, we can access error.response
+        const axiosError = err as AxiosError;
+
+        if (axiosError.response) {
+          // Handle API response errors (e.g., 400, 404, 500, etc.)
+          if (axiosError.response.status === 401) {
+
+            logout();
+          }
+        }
+      }
+
+
       if (err instanceof Yup.ValidationError) {
         const newErrors: any = {};
         err.inner.forEach((error) => {
@@ -181,17 +219,30 @@ const Services: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this service?')) {
       try {
-        // await serviceAPI.deleteService(id);
         const data = await toggleServiceview(id);
         if (data.data) {
           fetchServices();
           Toast.success("Service Deleted Successfully!");
 
         } else {
-
+          Toast.error(data.message)
         }
         fetchServices();
       } catch (error) {
+
+        if (axios.isAxiosError(error)) {
+          // Now that TypeScript knows this is an AxiosError, we can access error.response
+          const axiosError = error as AxiosError;
+
+          if (axiosError.response) {
+            // Handle API response errors (e.g., 400, 404, 500, etc.)
+            if (axiosError.response.status === 401) {
+
+              logout();
+            }
+          }
+        }
+
         console.error('Error deleting service:', error);
         Toast.error("Failed to Delete Service!")
 

@@ -4,7 +4,8 @@ import { navigate } from "./navigationService";
 
 
 const axiosInstance: any = axios.create({
-  baseURL: 'http://localhost:3400/', // Replace with your actual API URL
+    baseURL: 'http://localhost:3400/', // Replace with your actual API URL
+  // baseURL: 'http://app-sos-demo-env.eba-pqhwvhpr.ap-south-1.elasticbeanstalk.com/', // Replace with your actual API URL
   headers: {
     'Content-Type': 'application/json',
   },

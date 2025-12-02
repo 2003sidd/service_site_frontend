@@ -10,6 +10,9 @@ import Toast from '../utility/toast';
 import * as Yup from 'Yup'
 import Loader from '../components/UI/Loader';
 import { toast } from 'react-toastify';
+import type { AxiosError } from 'axios';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Employees: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -22,6 +25,7 @@ const Employees: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [itemPerPage, SetItemPerPage] = useState(10);
   const [filterByRole, setFilterByRole] = useState<string>("All");
+  const { logout } = useAuth();
 
   const [formData, setFormData] = useState<{
     _id: string | null;
@@ -59,22 +63,32 @@ const Employees: React.FC = () => {
 
   const fetchEmployees = async (page = 1) => {
     try {
-      // const data = await employeeAPI.getEmployees();
-      // setEmployees(data);
+
       setLoading(true)
 
       const data = await getEmployee({ index: page, top: itemPerPage, filterByRole },)
-      console.log("data is", data.data)
       if (data.data.total > 0) {
         setEmployees(data.data.users)
       } else {
         setEmployees([])
         setTotalPages(1)
+        Toast.error(data.message)
       }
       setCurrentPage(page);
 
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Now that TypeScript knows this is an AxiosError, we can access error.response
+        const axiosError = error as AxiosError;
 
+        if (axiosError.response) {
+          // Handle API response errors (e.g., 400, 404, 500, etc.)
+          if (axiosError.response.status === 401) {
+
+            logout();
+          }
+        }
+      }
       console.error('Error fetching employees:', error);
     } finally {
       setLoading(false);
@@ -108,8 +122,8 @@ const Employees: React.FC = () => {
 
       const data = await upsertEmployee(formData)
       if (data.data) {
-        fetchEmployees();
         closeModal();
+        fetchEmployees();
         if (editingEmployee) {
           Toast.success("Employee Updated Successfully!");
         } else {
@@ -119,7 +133,6 @@ const Employees: React.FC = () => {
         toast.error(data.message)
       }
     } catch (err) {
-      console.error('Error saving employee:', err);
       if (err instanceof Yup.ValidationError) {
         const newErrors: { [key: string]: string } = {};
         err.inner.forEach((error) => {
@@ -141,17 +154,30 @@ const Employees: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
-        // await employeeAPI.deleteEmployee(id);
         const data = await deleteEmployee(id);
 
         if (data.data) {
           fetchEmployees();
+          Toast.success(data.message);
         } else {
-
+          Toast.error(data.message)
         }
-        fetchEmployees();
-        Toast.success("Employee Deleted Successfully!");
       } catch (error) {
+
+        if (axios.isAxiosError(error)) {
+          // Now that TypeScript knows this is an AxiosError, we can access error.response
+          const axiosError = error as AxiosError;
+
+          if (axiosError.response) {
+            // Handle API response errors (e.g., 400, 404, 500, etc.)
+            if (axiosError.response.status === 401) {
+
+              logout();
+            }
+          }
+        }
+
+
         console.error('Error deleting employee:', error);
         Toast.error("Failed to Delete Employee!");
       }
@@ -379,7 +405,7 @@ const Employees: React.FC = () => {
 
               <button
                 type="button"
-                className="absolute right-3 top-9 h-4 w-4 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-11 h-4 w-4 text-gray-400 hover:text-gray-600"
                 onClick={() => setShowPassword(!showPassword)} >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>

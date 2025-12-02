@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
-import { Lock, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import type { User } from '../types';
 import Button from '../components/UI/Button';
 import Input from '../components/UI/Input';
@@ -10,6 +10,7 @@ import DataNotFound from './NoDataFound';
 import Toast from '../utility/toast';
 import * as Yup from 'Yup'
 import Loader from '../components/UI/Loader';
+import axios, { AxiosError } from 'axios';
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -52,12 +53,25 @@ const Users: React.FC = () => {
         setUsers(data.data.users);
         setTotalPages(Math.ceil(data.data.total / itemPerPage));
       } else {
+        Toast.error(data.message)
         setUsers([]);
         setTotalPages(1);
       }
 
       setCurrentPage(page);
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Now that TypeScript knows this is an AxiosError, we can access error.response
+        const axiosError = error as AxiosError;
+
+        if (axiosError.response) {
+          // Handle API response errors (e.g., 400, 404, 500, etc.)
+          if (axiosError.response.status === 401) {
+
+            logout();
+          }
+        }
+      }
       console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
@@ -96,7 +110,18 @@ const Users: React.FC = () => {
         Toast.error(data.message)
       }
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        // Now that TypeScript knows this is an AxiosError, we can access error.response
+        const axiosError = err as AxiosError;
 
+        if (axiosError.response) {
+          // Handle API response errors (e.g., 400, 404, 500, etc.)
+          if (axiosError.response.status === 401) {
+
+            logout();
+          }
+        }
+      }
 
       if (err instanceof Yup.ValidationError) {
         const newErrors: { [key: string]: string } = {};
@@ -119,7 +144,6 @@ const Users: React.FC = () => {
   const handleDelete = async (id: string, active: Boolean) => {
     if (window.confirm(active ? 'Are you sure you want to delete this user?' : "Are you sure you want to activate this user")) {
       try {
-        // await userAPI.deleteUser(id);
         const data = await toggleUserAccount(id);
         if (data.data) {
           fetchUsers()
@@ -136,6 +160,19 @@ const Users: React.FC = () => {
       } catch (error) {
         console.error('Error deleting user:', error);
         Toast.error("Failed to Delete User!")
+
+        if (axios.isAxiosError(error)) {
+          // Now that TypeScript knows this is an AxiosError, we can access error.response
+          const axiosError = error as AxiosError;
+
+          if (axiosError.response) {
+            // Handle API response errors (e.g., 400, 404, 500, etc.)
+            if (axiosError.response.status === 401) {
+
+              logout();
+            }
+          }
+        }
 
       }
     }
@@ -399,4 +436,8 @@ const Users: React.FC = () => {
 };
 
 export default Users;
+
+function logout() {
+  throw new Error('Function not implemented.');
+}
 

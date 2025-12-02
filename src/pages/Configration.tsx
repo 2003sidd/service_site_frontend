@@ -1,18 +1,39 @@
 import { useEffect, useState } from "react";
 import { getConfig, saveConfig } from "../services/user.service";
 import type { Config } from "../types/responseTypes/ConfigResponse";
+import { useAuth } from "../context/AuthContext";
+import Toast from "../utility/toast";
+import axios, { AxiosError } from "axios";
 
 const ConfigPage: React.FC = () => {
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { logout } = useAuth();
 
   const fetchConfig = async () => {
     try {
       const res = await getConfig();
-      setConfig(res.data);
+      if (res.data) {
+        setConfig(res.data);
+      } else {
+        Toast.error(res.message)
+        setConfig(null)
+      }
     } catch (err: any) {
+      if (axios.isAxiosError(error)) {
+        // Now that TypeScript knows this is an AxiosError, we can access error.response
+        const axiosError = error as AxiosError;
+
+        if (axiosError.response) {
+          // Handle API response errors (e.g., 400, 404, 500, etc.)
+          if (axiosError.response.status === 401) {
+
+            logout();
+          }
+        }
+      }
       setError("Failed to load configuration");
     } finally {
       setLoading(false);
@@ -47,10 +68,27 @@ const ConfigPage: React.FC = () => {
 
     try {
       setSaving(true);
-      console.log("config is",config)
-      // await axios.put("/api/config", config);
-      await saveConfig(config)
+      const data = await saveConfig(config)
+      if (data.data) {
+        Toast.success(data.message)
+      } else {
+        Toast.error(data.message)
+      }
     } catch (err) {
+
+      if (axios.isAxiosError(error)) {
+        // Now that TypeScript knows this is an AxiosError, we can access error.response
+        const axiosError = error as AxiosError;
+
+        if (axiosError.response) {
+          // Handle API response errors (e.g., 400, 404, 500, etc.)
+          if (axiosError.response.status === 401) {
+
+            logout();
+          }
+        }
+      }
+
       alert("Failed to update configuration.");
     } finally {
       setSaving(false);
@@ -184,7 +222,7 @@ const ConfigPage: React.FC = () => {
             QR Image URL
           </label>
           <div className="flex justify-center my-0">
-          <img className=" max-h-80" src={config.qrImage} />
+            <img className=" max-h-80" src={config.qrImage} />
           </div>
           <input
             type="text"

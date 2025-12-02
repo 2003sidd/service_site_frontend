@@ -1,4 +1,4 @@
-import type { Employee, User } from "../../types";
+import type { Employee } from "../../types";
 
 
 export interface paginationEmployeeResponse {

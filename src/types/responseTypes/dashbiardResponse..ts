@@ -1,4 +1,3 @@
-import type { ServiceRequest } from "../requestTypes/serviceRequest.interface"
 import type { ServiceRequestInterface } from "./serviceResponse"
 
 export interface DashboardResponse {

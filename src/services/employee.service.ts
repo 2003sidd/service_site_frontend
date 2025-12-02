@@ -1,5 +1,5 @@
 import type { genericResponse } from "../types/genericResponse";
-import type { employteeRequestInterface, paginationType } from "../types/pagniation.interface";
+import type { employteeRequestInterface } from "../types/pagniation.interface";
 import type { registerEmployeeInterface } from "../types/requestTypes/registerEmployee.interface";
 import type { paginationEmployeeResponse } from "../types/responseTypes/paginationResponseEmployee";
 import { get, post } from "./api";
