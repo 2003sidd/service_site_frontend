@@ -135,34 +135,6 @@ const ConfigPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Checkbox */}
-        {/* <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            name="isMaintaince"
-            checked={config.isMaintaince}
-            onChange={handleChange}
-            className="h-4 w-4 text-[--primary-color] focus:ring-[--primary-color] border-gray-300 rounded"
-          />
-          <label className="text-gray-700 font-medium">
-            Maintenance Mode
-          </label>
-        </div> */}
-
-        {/* Textareas and others
-        <div>
-          <label className="block text-gray-700 font-medium mb-1">
-            About Us
-          </label>
-          <textarea
-            name="aboutUs"
-            value={config.aboutUs}
-            onChange={handleChange}
-            rows={3}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[--primary-color]"
-          />
-        </div> */}
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-gray-700 font-medium mb-1">
@@ -185,6 +157,34 @@ const ConfigPage: React.FC = () => {
               type="email"
               name="contactEmail"
               value={config.contactEmail}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[--primary-color]"
+            />
+          </div>
+        </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Support Number
+            </label>
+            <input
+              type="text"
+              name="supportNumber"
+              value={config.supportNumber}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[--primary-color]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Support Email
+            </label>
+            <input
+              type="email"
+              name="supportEmail"
+              value={config.supportEmail}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[--primary-color]"
             />

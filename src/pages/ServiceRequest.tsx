@@ -136,6 +136,9 @@ const NewServices: React.FC = () => {
                                     <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
+                                    <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                        Date
+                                    </th>
                                     <th className="px-6 py-3  text-xs font-bold text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
@@ -168,6 +171,9 @@ const NewServices: React.FC = () => {
                                             <span className="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium">
                                                 {serviceData.status}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
+                                            {new Date(serviceData?.createdAt!!).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-center whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex items-center justify-center space-x-2">

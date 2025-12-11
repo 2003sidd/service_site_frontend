@@ -7,18 +7,13 @@ import type { ServiceRequestInterface } from "../types/responseTypes/serviceResp
 import { useNavigate } from "react-router-dom";
 import Button from "../components/UI/Button";
 import Loader from "../components/UI/Loader";
-// import {debounce} from "lodash"
 import axios, { AxiosError } from "axios";
 import { useAuth } from "../context/AuthContext";
 import { debounce } from "lodash";
-import Toast from "../utility/toast";
 
 const NewServices: React.FC = () => {
-
     const navigate = useNavigate()
     const { logout } = useAuth();
-
-
 
     const [newService, SetNewService] = useState<ServiceRequestInterface[] | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -69,7 +64,6 @@ const NewServices: React.FC = () => {
             } else {
                 SetNewService(null)
                 setTotalPages(0)
-                Toast.error(newService.message)
             }
         } catch (error) {
             // First, ensure the error is an AxiosError
@@ -137,6 +131,9 @@ const NewServices: React.FC = () => {
                                     <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
+                                     <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                        Date
+                                    </th>
                                     <th className="px-6 py-3  text-xs font-bold text-gray-500 uppercase tracking-wider">
                                         Actions
                                     </th>
@@ -170,6 +167,9 @@ const NewServices: React.FC = () => {
                                                 {serviceData.status}
                                             </span>
                                         </td>
+                                         <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
+                        {new Date(serviceData?.createdAt!!).toLocaleDateString()}
+                      </td>
                                         <td className="px-6 py-4 text-center whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex items-center justify-center space-x-2">
                                                 <button

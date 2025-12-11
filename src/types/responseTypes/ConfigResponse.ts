@@ -6,6 +6,8 @@ export interface Config {
   aboutUs: string;
   contactNumber: string;
   contactEmail: string;
+  supportNumber: string;
+  supportEmail: string;
   privacyPolicy: string;
   termAndConditon: string;
   qrImage: string;

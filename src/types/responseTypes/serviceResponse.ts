@@ -24,7 +24,8 @@ export interface ServiceRequestInterface {
     assignmentRequest:techInfo, 
     comment: string,
     amount: string,
-    status: string
+    status: string,
+    createdAt:string
 }
 
 interface techInfo {
